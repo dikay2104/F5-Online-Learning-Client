@@ -1,3 +1,20 @@
+# Online Learning System - Frontend
+
+This is the React frontend for the Online Learning System project using [Ant Design](https://ant.design).
+
+## 📦 Stack
+
+- React 18
+- React Router DOM
+- Axios
+- Ant Design
+
+## 🛠️ Setup
+
+```bash
+npm install
+npm run dev
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
