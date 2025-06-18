@@ -1,14 +1,17 @@
 import { Button, Form, Input, message } from 'antd';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { login } from '../services/authService';
+import { useAuth } from '../context/authContext';
 
 export default function Login() {
   const navigate = useNavigate();
+  const { setUser } = useAuth();
 
   const onFinish = async (values) => {
     try {
-      const res = await axios.post('http://localhost:3001/api/auth/login', values);
+      const res = await login(values);
       localStorage.setItem('token', res.data.token);
+      setUser(res.data.user); // set context
       message.success('Login successful');
       navigate('/');
     } catch (err) {

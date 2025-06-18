@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { getCurrentUser } from '../services/userService';
 
 export default function Home() {
   const [user, setUser] = useState(null);
@@ -13,16 +13,9 @@ export default function Home() {
       return;
     }
 
-    axios.get('http://localhost:3001/api/users/profile/me', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    getCurrentUser(token)
       .then(res => setUser(res.data.user))
-      .catch(err => {
-        console.error(err);
-        navigate('/login'); // Nếu token hết hạn hoặc lỗi
-      });
+      .catch(() => navigate('/login'));
   }, [navigate]);
 
   if (!user) return <p>Loading...</p>;
