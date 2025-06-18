@@ -1,13 +1,14 @@
+// src/pages/Register.jsx
 import { Button, Form, Input, Select, message } from 'antd';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { register } from '../services/authService';
 
 export default function Register() {
   const navigate = useNavigate();
 
   const onFinish = async (values) => {
     try {
-      const res = await axios.post('http://localhost:3001/api/auth/register', values);
+      const res = await register(values);
       message.success(res.data.message);
       navigate('/login');
     } catch (err) {
