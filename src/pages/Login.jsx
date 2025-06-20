@@ -20,7 +20,7 @@ export default function Login() {
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: 'auto', marginTop: 100 }}>
+    <div style={{ maxWidth: 400, width: '100%', margin: 'auto', marginTop: 100 }}>
       <h2>Login</h2>
       <Form layout="vertical" onFinish={onFinish}>
         <Form.Item name="email" label="Email" rules={[{ required: true }]}>

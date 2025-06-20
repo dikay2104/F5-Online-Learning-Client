@@ -17,7 +17,7 @@ export default function Register() {
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: 'auto', marginTop: 100 }}>
+    <div style={{ maxWidth: 400, width: '100%', margin: 'auto', marginTop: 100 }}>
       <h2>Register</h2>
       <Form layout="vertical" onFinish={onFinish}>
         <Form.Item name="fullName" label="Full Name" rules={[{ required: true }]}>
