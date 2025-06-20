@@ -6,17 +6,17 @@ export default function Home() {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      navigate('/login');
-      return;
-    }
+  // useEffect(() => {
+  //   const token = localStorage.getItem('token');
+  //   if (!token) {
+  //     navigate('/login');
+  //     return;
+  //   }
 
-    getCurrentUser(token)
-      .then(res => setUser(res.data.user))
-      .catch(() => navigate('/login'));
-  }, [navigate]);
+  //   getCurrentUser(token)
+  //     .then(res => setUser(res.data.user))
+  //     .catch(() => navigate('/login'));
+  // }, [navigate]);
 
   if (!user) return <p>Loading...</p>;
 

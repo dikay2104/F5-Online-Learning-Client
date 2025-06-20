@@ -11,3 +11,22 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.ant-menu-title-content {
+  margin: 0 !important;
+  text-align: center;
+  width: 100%;
+}
+
+.custom-sidebar-menu .ant-menu-item {
+  justify-content: flex-start !important; /* Căn trái toàn bộ item */
+}
+
+.custom-sidebar-menu .ant-menu-item .ant-menu-item-icon {
+  margin-right: 12px; /* Giãn cách icon và text */
+}
+
+.custom-sidebar-menu .ant-menu-title-content {
+  text-align: left;
+  width: 100%;
+}
