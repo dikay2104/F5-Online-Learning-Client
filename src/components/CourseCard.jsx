@@ -4,9 +4,6 @@ import {
   ClockCircleOutlined,
   DollarOutlined,
   BookOutlined,
-  CheckCircleTwoTone,
-  CloseCircleTwoTone,
-  HourglassTwoTone,
 } from '@ant-design/icons';
 import thumbnailFallback from '../assets/thumbnail.jpg';
 
@@ -26,7 +23,7 @@ const levelColor = {
   advanced: 'red',
 };
 
-export default function CourseCard({ course, role = 'student', onEdit, onDelete, onSubmit }) {
+export default function CourseCard({ course, role = 'student', onClick, onEdit, onDelete, onSubmit }) {
   const {
     title,
     description,
@@ -40,17 +37,6 @@ export default function CourseCard({ course, role = 'student', onEdit, onDelete,
     teacher,
   } = course;
 
-  const renderStatusIcon = () => {
-    switch (status) {
-      case 'approved':
-        return <CheckCircleTwoTone twoToneColor="#52c41a" />;
-      case 'rejected':
-        return <CloseCircleTwoTone twoToneColor="#f5222d" />;
-      default:
-        return <HourglassTwoTone twoToneColor="#faad14" />;
-    }
-  };
-
   const actions =
     role === 'teacher'
       ? [
@@ -61,12 +47,13 @@ export default function CourseCard({ course, role = 'student', onEdit, onDelete,
               Gửi duyệt
             </Button>
           ),
-        ].filter(Boolean) // loại bỏ undefined nếu không hiển thị Gửi duyệt
+        ].filter(Boolean)
       : [<Button type="primary">Xem khoá học</Button>];
 
   return (
     <Card
       hoverable
+      onClick={onClick}
       cover={
         <img
           alt="course-thumbnail"
@@ -103,7 +90,6 @@ export default function CourseCard({ course, role = 'student', onEdit, onDelete,
           <Space>
             <Text strong>Trạng thái:</Text>
             <Tag color={statusColor[status]}>{status.toUpperCase()}</Tag>
-            {/* {renderStatusIcon()} */}
           </Space>
         )}
       </Space>

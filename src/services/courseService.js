@@ -9,8 +9,12 @@ export const getAllCourses = (search = '') =>
   });
 
 // Lấy chi tiết 1 khóa học theo ID (public)
-export const getCourseById = (courseId) =>
-  axios.get(`${API}/${courseId}`);
+export const getCourseById = (courseId, token) =>
+  axios.get(`${API}/${courseId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
 // Lấy khóa học có phân trang dành cho giáo viên (cần token)
 export const getTeacherCourses = (token, { page = 1, limit = 10, status = '', search = '' }) =>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Row, Col, Spin, message, Pagination, Empty, Typography, Modal } from 'antd';
+import { Row, Col, Spin, message, Pagination, Empty, Typography, Modal, Button } from 'antd';
+import { useNavigate } from 'react-router-dom';
 import CourseCard from '../../components/CourseCard';
 import { getTeacherCourses, deleteCourse, submitCourse } from '../../services/courseService';
 
@@ -11,6 +12,7 @@ export default function TeacherCoursePage() {
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(false);
   const limit = 8;
+  const navigate = useNavigate();
 
   const token = localStorage.getItem('token');
 
@@ -42,7 +44,7 @@ export default function TeacherCoursePage() {
     try {
       await deleteCourse(token, id);
       message.success('Đã xoá khóa học');
-      fetchCourses(page); // reload current page
+      fetchCourses(page);
     } catch (err) {
       message.error('Xoá thất bại');
     }
@@ -50,7 +52,7 @@ export default function TeacherCoursePage() {
 
   const handleSubmit = async (id) => {
     try {
-      await submitCourse(token, id); // gọi API
+      await submitCourse(token, id);
       message.success('Đã gửi khoá học để xét duyệt');
       fetchCourses(page);
     } catch (err) {
@@ -64,7 +66,13 @@ export default function TeacherCoursePage() {
 
   return (
     <div style={{ padding: '24px' }}>
-      <Title level={2}>Khoá học của tôi</Title>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Title level={2}>Khoá học của tôi</Title>
+        <Button type="primary" onClick={() => navigate('/courses/create')}>
+          Tạo khoá học
+        </Button>
+      </div>
+
       {loading ? (
         <Spin size="large" style={{ display: 'flex', justifyContent: 'center', marginTop: 48 }} />
       ) : courses.length === 0 ? (
@@ -77,7 +85,8 @@ export default function TeacherCoursePage() {
                 <CourseCard
                   course={course}
                   role="teacher"
-                  onEdit={() => message.info(`Chỉnh sửa khóa học ${course.title}`)}
+                  onClick={() => navigate(`/courses/${course._id}`)}
+                  onEdit={() => navigate(`/courses/${course._id}/edit`)}
                   onDelete={() => showConfirmDelete(course)}
                   onSubmit={() => handleSubmit(course._id)}
                 />
