@@ -7,6 +7,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Home from './pages/Home';
 import MyCoursePage from './pages/MyCoursePage';
+import CourseDetailPage from './pages/teacher/CourseDetail';
 import { AuthProvider, useAuth } from './context/authContext';
 import Loading from './components/Loading';
 
@@ -29,7 +30,7 @@ export default function App() {
             <Routes>
               {/* Route cho giáo viên */}
               <Route path="/my-courses" element={<PrivateRoute element={<MyCoursePage />} />} />
-
+              <Route path="/courses/:courseId" element={<PrivateRoute element={<CourseDetailPage />} />} />
               
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
