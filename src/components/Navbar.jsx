@@ -73,7 +73,7 @@ export default function Navbar() {
   );
 
   return (
-    <Menu mode="horizontal" theme="light">
+    <Menu mode="horizontal" theme="light" style={{ height: 55, lineHeight: '55px' }}>
       <Menu.Item key="logo" onClick={() => navigate('/')}>
         <div style={{ fontWeight: 'bold', fontSize: 18 }}>F5 Learning</div>
       </Menu.Item>

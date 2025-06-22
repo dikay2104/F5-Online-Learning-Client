@@ -6,6 +6,7 @@ import Sidebar from './components/Sidebar';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Home from './pages/Home';
+import MyCoursePage from './pages/MyCoursePage';
 import { AuthProvider, useAuth } from './context/authContext';
 import Loading from './components/Loading';
 
@@ -26,6 +27,10 @@ export default function App() {
           <Sidebar />
           <Layout style={{ padding: '0 24px 24px' }}>
             <Routes>
+              {/* Route cho giáo viên */}
+              <Route path="/my-courses" element={<PrivateRoute element={<MyCoursePage />} />} />
+
+              
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
