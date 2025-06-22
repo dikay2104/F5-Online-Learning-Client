@@ -9,21 +9,20 @@ import {
   SettingOutlined,
   ExclamationCircleOutlined
 } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/authContext';
 
 const { Sider } = Layout;
 
 export default function Sidebar() {
   const navigate = useNavigate();
+  const location = useLocation(); // 👈 Lấy đường dẫn hiện tại
   const { user } = useAuth();
 
-  // Thêm vào các danh sách studentItems, teacherItems, adminItems
-  const commonHomeItem = { key: '/', icon: <AppstoreOutlined />, label: 'Home' };
-    
-  const commonAboutItem = { key: '/about', icon: <ExclamationCircleOutlined />, label: 'About Us' };
+  const pathname = location.pathname; // 👈 Dùng làm selectedKey
 
-  
+  const commonHomeItem = { key: '/', icon: <AppstoreOutlined />, label: 'Home' };
+  const commonAboutItem = { key: '/about', icon: <ExclamationCircleOutlined />, label: 'About Us' };
 
   const studentItems = [
     commonHomeItem,
@@ -76,6 +75,7 @@ export default function Sidebar() {
         className="custom-sidebar-menu"
         onClick={handleClick}
         items={getMenuItems()}
+        selectedKeys={[pathname]} // 👈 Highlight theo route
       />
     </Sider>
   );
