@@ -82,7 +82,10 @@ export default function CourseDetailPage() {
               <Tag color="purple">{course.category}</Tag>
             </Descriptions.Item>
             <Descriptions.Item label="Thời lượng">
-              {(course.duration / 60).toFixed(1)} phút
+              {/* {(course.duration / 60).toFixed(1)} phút */}
+              {course.duration >= 3600
+              ? `${Math.floor(course.duration / 3600)} giờ ${Math.floor((course.duration % 3600) / 60)} phút`
+              : `${Math.floor(course.duration / 60)} phút`}
             </Descriptions.Item>
             <Descriptions.Item label="Số học viên">{course.studentsCount}</Descriptions.Item>
             <Descriptions.Item label="Trạng thái">
