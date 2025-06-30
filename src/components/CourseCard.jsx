@@ -76,7 +76,11 @@ export default function CourseCard({ course, role = 'student', onClick, onEdit, 
         </Space>
         <Space>
           <ClockCircleOutlined />
-          <Text>{duration} phút</Text>
+          <Text>
+            {duration >= 3600
+              ? `${Math.floor(duration / 3600)} giờ ${Math.floor((duration % 3600) / 60)} phút`
+              : `${Math.floor(duration / 60)} phút`}
+          </Text>
         </Space>
         <Space>
           <BookOutlined />

@@ -53,3 +53,16 @@ export const submitCourse = (token, courseId) =>
   axios.put(`${API}/${courseId}/submit`, {}, {
     headers: { Authorization: `Bearer ${token}` }
   });
+
+// Tải lên thumbnail bằng Cloudinary thông qua backend
+export const uploadThumbnail = (token, file) => {
+  const formData = new FormData();
+  formData.append('thumbnail', file);
+
+  return axios.post(`${process.env.REACT_APP_API_BASE_URL}/upload/thumbnail`, formData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+};
