@@ -51,6 +51,10 @@ export default function CourseDetailPage() {
     return <Spin size="large" style={{ display: 'flex', justifyContent: 'center', marginTop: 48 }} />;
   }
 
+  if (!course) {
+    return <div style={{ padding: 24 }}><Card><Title level={3}>Không tìm thấy khóa học</Title></Card></div>;
+  }
+
   return (
     <div style={{ padding: 24 }}>
       <Card>
@@ -82,7 +86,10 @@ export default function CourseDetailPage() {
               <Tag color="purple">{course.category}</Tag>
             </Descriptions.Item>
             <Descriptions.Item label="Thời lượng">
-              {(course.duration / 60).toFixed(1)} phút
+              {/* {(course.duration / 60).toFixed(1)} phút */}
+              {course.duration >= 3600
+              ? `${Math.floor(course.duration / 3600)} giờ ${Math.floor((course.duration % 3600) / 60)} phút`
+              : `${Math.floor(course.duration / 60)} phút`}
             </Descriptions.Item>
             <Descriptions.Item label="Số học viên">{course.studentsCount}</Descriptions.Item>
             <Descriptions.Item label="Trạng thái">

@@ -8,9 +8,13 @@ import Register from './pages/Register';
 import Home from './pages/homePage/Home';
 import MyCoursePage from './pages/MyCoursePage';
 import CourseDetailPage from './pages/teacher/CourseDetail';
+import CourseFormPage from './pages/teacher/CourseFormPage';
 import { AuthProvider, useAuth } from './context/authContext';
 import Loading from './components/Loading';
-import RoadmapFE from './pages/guest/RoadmapFE';
+import StudentHome from "./pages/student/Home";
+import StudentCourseDetail from "./pages/student/CourseDetail";
+import PaymentCallback from './pages/PaymentCallback';
+import LessonLearn from './pages/student/LessonLearn';import RoadmapFE from './pages/guest/RoadmapFE';
 import RoadmapBE from './pages/guest/RoadmapBE';
 import AboutUs from './pages/guest/AboutUs';
 
@@ -35,10 +39,18 @@ export default function App() {
               {/* Route cho giáo viên */}
               <Route path="/my-courses" element={<PrivateRoute element={<MyCoursePage />} />} />
               <Route path="/courses/:courseId" element={<PrivateRoute element={<CourseDetailPage />} />} />
+              <Route path="/courses/create" element={<PrivateRoute element={<CourseFormPage />} />} />
+              <Route path="/courses/:courseId/edit" element={<PrivateRoute element={<CourseFormPage />} />} />
               
-              <Route path="/" element={<Home />} />
+              {/* <Route path="/" element={<Home />} /> */}
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+
+              {/*route cho student*/}
+              <Route path="/" element={<StudentHome />} />
+              <Route path="/student/courses/:courseId" element={<StudentCourseDetail />} />
+              <Route path="/payment/callback" element={<PaymentCallback />} />
+              <Route path="/student/lessons/:lessonId" element={<LessonLearn />} />
               {/* Route cho guest */}
               <Route path="/roadmap-fe" element={<RoadmapFE />} />
               <Route path="/roadmap-be" element={<RoadmapBE />} />
