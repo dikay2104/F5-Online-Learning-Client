@@ -45,7 +45,7 @@ export default function CourseDetailPage() {
     };
 
     fetchData();
-  }, [courseId]);
+  }, [courseId, token]);
 
   if (loading) {
     return <Spin size="large" style={{ display: 'flex', justifyContent: 'center', marginTop: 48 }} />;

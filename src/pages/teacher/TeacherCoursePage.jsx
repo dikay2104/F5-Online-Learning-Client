@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Row, Col, Spin, message, Pagination, Empty, Typography, Modal, Button } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import CourseCard from '../../components/CourseCard';
@@ -16,7 +16,7 @@ export default function TeacherCoursePage() {
 
   const token = localStorage.getItem('token');
 
-  const fetchCourses = async (pageNumber = 1) => {
+  const fetchCourses = useCallback(async (pageNumber = 1) => {
     setLoading(true);
     try {
       const res = await getTeacherCourses(token, { page: pageNumber, limit });
@@ -27,7 +27,7 @@ export default function TeacherCoursePage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token, limit]);
 
   const showConfirmDelete = (course) => {
     Modal.confirm({
@@ -62,7 +62,7 @@ export default function TeacherCoursePage() {
 
   useEffect(() => {
     fetchCourses(page);
-  }, [page]);
+  }, [page, fetchCourses]);
 
   return (
     <div style={{ padding: '24px' }}>
