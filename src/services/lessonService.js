@@ -36,3 +36,8 @@ export const deleteLesson = (token, lessonId) =>
             Authorization: `Bearer ${token}`,
         },
     });
+
+export const reorderLessons = (token, reorderList) =>
+  axios.put(`${API}/reorder`, reorderList, {
+    headers: { Authorization: `Bearer ${token}` }
+  });

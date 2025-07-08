@@ -66,7 +66,10 @@ export default function CourseCard({ course, role = 'student', onClick, onEdit, 
       <Meta
         avatar={<Avatar icon={<UserOutlined />} src={teacher?.avatar} />}
         title={<Title level={4} style={{ margin: 0 }}>{title}</Title>}
-        description={<Text type="secondary">{description?.slice(0, 100)}...</Text>}
+        description={
+          <Text type="secondary" style={{ display: 'block', minHeight: 48}}>
+            {description?.slice(0, 100)}...
+          </Text>}
       />
 
       <Space direction="vertical" size="small" style={{ marginTop: 16 }}>
@@ -88,7 +91,13 @@ export default function CourseCard({ course, role = 'student', onClick, onEdit, 
         </Space>
         <Space>
           <DollarOutlined />
-          <Text>{price === 0 ? 'Miễn phí' : `${price.toLocaleString()}đ`}</Text>
+          <Text>
+            {price == null
+              ? 'Chưa có giá'
+              : price === 0
+                ? 'Miễn phí'
+                : `${price.toLocaleString()}đ`}
+          </Text>
         </Space>
         {role === 'teacher' && (
           <Space>
