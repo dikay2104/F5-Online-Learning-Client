@@ -14,7 +14,6 @@ export default function LessonLearn() {
   const navigate = useNavigate();
   const [lesson, setLesson] = useState(null);
   const [lessons, setLessons] = useState([]);
-  const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,7 +30,6 @@ export default function LessonLearn() {
       const courseId = localStorage.getItem('currentCourseId');
       if (!courseId) return;
       const courseRes = await getCourseById(courseId);
-      setCourse(courseRes.data.data);
       const lessonsRes = await getLessonsByCourse(courseId);
       setLessons(lessonsRes.data.data);
       const found = lessonsRes.data.data.find(l => l._id === lessonId);

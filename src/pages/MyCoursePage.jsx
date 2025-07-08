@@ -3,7 +3,6 @@ import { useAuth } from '../context/authContext';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { getMyEnrollments } from '../services/enrollmentService';
-import CourseCardStudent from '../components/CourseCardStudent';
 import Loading from '../components/Loading';
 import { Card, Button } from 'antd';
 import { getLessonsByCourse } from '../services/lessonService';

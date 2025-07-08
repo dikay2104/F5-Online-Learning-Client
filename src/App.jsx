@@ -11,13 +11,9 @@ import CourseDetailPage from './pages/teacher/CourseDetail';
 import CourseFormPage from './pages/teacher/CourseFormPage';
 import { AuthProvider, useAuth } from './context/authContext';
 import Loading from './components/Loading';
-import StudentHome from "./pages/student/Home";
-import StudentCourseDetail from "./pages/student/CourseDetail";
-import PaymentCallback from './pages/PaymentCallback';
-import LessonLearn from './pages/student/LessonLearn';import RoadmapFE from './pages/guest/RoadmapFE';
+import AboutUs from './pages/homePage/AboutUs';
+import RoadmapFE from './pages/guest/RoadmapFE';
 import RoadmapBE from './pages/guest/RoadmapBE';
-import AboutUs from './pages/guest/AboutUs';
-
 
 function PrivateRoute({ element }) {
   const { user, loading } = useAuth();
@@ -41,20 +37,13 @@ export default function App() {
               <Route path="/courses/:courseId" element={<PrivateRoute element={<CourseDetailPage />} />} />
               <Route path="/courses/create" element={<PrivateRoute element={<CourseFormPage />} />} />
               <Route path="/courses/:courseId/edit" element={<PrivateRoute element={<CourseFormPage />} />} />
-              
-              {/* <Route path="/" element={<Home />} /> */}
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-
-              {/*route cho student*/}
-              <Route path="/" element={<StudentHome />} />
-              <Route path="/student/courses/:courseId" element={<StudentCourseDetail />} />
-              <Route path="/payment/callback" element={<PaymentCallback />} />
-              <Route path="/student/lessons/:lessonId" element={<LessonLearn />} />
-              {/* Route cho guest */}
+              {/* Guest routes */}
+              <Route path="/about" element={<AboutUs />} />
               <Route path="/roadmap-fe" element={<RoadmapFE />} />
               <Route path="/roadmap-be" element={<RoadmapBE />} />
-              <Route path="/about" element={<AboutUs />} />
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
             </Routes>
           </Layout>
         </Layout>
@@ -62,4 +51,3 @@ export default function App() {
     </AuthProvider>
   );
 }
-

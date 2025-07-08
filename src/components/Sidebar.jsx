@@ -23,28 +23,38 @@ export default function Sidebar() {
 
   const pathname = location.pathname;
 
+  const commonHomeItem = { key: '/', icon: <AppstoreOutlined />, label: 'Home' };
+  const commonAboutItem = { key: '/about', icon: <ExclamationCircleOutlined />, label: 'About Us' };
+
   const studentItems = [
-    { key: '/my-courses', icon: <BookOutlined style={{ fontSize: 20 }} />, label: 'My Courses' },
-    { key: '/progress', icon: <LineChartOutlined style={{ fontSize: 20 }} />, label: 'Progress' },
-    { key: '/lessons', icon: <PlayCircleOutlined style={{ fontSize: 20 }} />, label: 'Lessons' },
+    commonHomeItem,
+    { key: '/my-courses', icon: <BookOutlined />, label: 'My Courses' },
+    { key: '/progress', icon: <LineChartOutlined />, label: 'Progress' },
+    { key: '/lessons', icon: <PlayCircleOutlined />, label: 'Lessons' },
+    commonAboutItem,
   ];
 
   const teacherItems = [
-    { key: '/my-courses', icon: <BookOutlined style={{ fontSize: 20 }} />, label: 'My Courses' },
-    { key: '/feedback', icon: <MessageOutlined style={{ fontSize: 20 }} />, label: 'Feedback' },
-    { key: '/students', icon: <UsergroupAddOutlined style={{ fontSize: 20 }} />, label: 'Students' },
+    commonHomeItem,
+    { key: '/my-courses', icon: <BookOutlined />, label: 'My Courses' },
+    { key: '/feedback', icon: <MessageOutlined />, label: 'Feedback' },
+    { key: '/students', icon: <UsergroupAddOutlined />, label: 'Students' },
+    commonAboutItem,
   ];
 
   const adminItems = [
-    { key: '/admin/dashboard', icon: <AppstoreOutlined style={{ fontSize: 20 }} />, label: 'Dashboard' },
-    { key: '/admin/users', icon: <UsergroupAddOutlined style={{ fontSize: 20 }} />, label: 'Manage Users' },
-    { key: '/admin/settings', icon: <SettingOutlined style={{ fontSize: 20 }} />, label: 'Settings' },
+    commonHomeItem,
+    { key: '/admin/dashboard', icon: <AppstoreOutlined />, label: 'Dashboard' },
+    { key: '/admin/users', icon: <UsergroupAddOutlined />, label: 'Manage Users' },
+    { key: '/admin/settings', icon: <SettingOutlined />, label: 'Settings' },
+    commonAboutItem,
   ];
 
   const guestItems = [
-    { key: '/roadmap-fe', icon: <CodeOutlined style={{ fontSize: 20 }} />, label: 'Lộ trình Frontend' },
-    { key: '/roadmap-be', icon: <DatabaseOutlined style={{ fontSize: 20 }} />, label: 'Lộ trình Backend' },
-    { key: '/about', icon: <ExclamationCircleOutlined style={{ fontSize: 20 }} />, label: 'About Us' },
+    commonHomeItem,
+    { key: '/roadmap-fe', icon: <CodeOutlined />, label: 'Lộ trình Frontend' },
+    { key: '/roadmap-be', icon: <DatabaseOutlined />, label: 'Lộ trình Backend' },
+    commonAboutItem,
   ];
 
   const handleClick = (e) => {
