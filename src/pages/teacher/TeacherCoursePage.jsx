@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import {
   Row, Col, Spin, message, Pagination, Empty, Typography, Modal, Button
 } from 'antd';
@@ -23,7 +23,7 @@ export default function TeacherCoursePage() {
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
 
-  const fetchCourses = async (pageNumber = 1) => {
+  const fetchCourses = useCallback(async (pageNumber = 1) => {
     setLoading(true);
     try {
       const res = await getTeacherCourses(token, {
@@ -40,7 +40,7 @@ export default function TeacherCoursePage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token, limit]);
 
   const showConfirmDelete = (course) => {
     Modal.confirm({

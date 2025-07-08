@@ -3,9 +3,9 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from 'antd';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
-import Login from './pages/Login';
+import Login from './pages/homePage/Login';
 import Register from './pages/Register';
-import Home from './pages/Home';
+import Home from './pages/homePage/Home';
 import MyCoursePage from './pages/MyCoursePage';
 import CourseDetailPage from './pages/teacher/CourseDetail';
 import CourseFormPage from './pages/teacher/CourseFormPage';
@@ -14,7 +14,11 @@ import Loading from './components/Loading';
 import StudentHome from "./pages/student/Home";
 import StudentCourseDetail from "./pages/student/CourseDetail";
 import PaymentCallback from './pages/PaymentCallback';
-import LessonLearn from './pages/student/LessonLearn';
+import LessonLearn from './pages/student/LessonLearn';import RoadmapFE from './pages/guest/RoadmapFE';
+import RoadmapBE from './pages/guest/RoadmapBE';
+import AboutUs from './pages/guest/AboutUs';
+
+
 function PrivateRoute({ element }) {
   const { user, loading } = useAuth();
 
@@ -47,6 +51,10 @@ export default function App() {
               <Route path="/student/courses/:courseId" element={<StudentCourseDetail />} />
               <Route path="/payment/callback" element={<PaymentCallback />} />
               <Route path="/student/lessons/:lessonId" element={<LessonLearn />} />
+              {/* Route cho guest */}
+              <Route path="/roadmap-fe" element={<RoadmapFE />} />
+              <Route path="/roadmap-be" element={<RoadmapBE />} />
+              <Route path="/about" element={<AboutUs />} />
             </Routes>
           </Layout>
         </Layout>
