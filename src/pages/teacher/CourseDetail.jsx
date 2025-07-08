@@ -51,6 +51,10 @@ export default function CourseDetailPage() {
     return <Spin size="large" style={{ display: 'flex', justifyContent: 'center', marginTop: 48 }} />;
   }
 
+  if (!course) {
+    return <div style={{ padding: 24 }}><Card><Title level={3}>Không tìm thấy khóa học</Title></Card></div>;
+  }
+
   return (
     <div style={{ padding: 24 }}>
       <Card>

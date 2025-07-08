@@ -11,7 +11,9 @@ import CourseDetailPage from './pages/teacher/CourseDetail';
 import CourseFormPage from './pages/teacher/CourseFormPage';
 import { AuthProvider, useAuth } from './context/authContext';
 import Loading from './components/Loading';
-
+import StudentHome from "./pages/student/Home";
+import StudentCourseDetail from "./pages/student/CourseDetail";
+import PaymentCallback from './pages/PaymentCallback';
 function PrivateRoute({ element }) {
   const { user, loading } = useAuth();
 
@@ -35,9 +37,14 @@ export default function App() {
               <Route path="/courses/create" element={<PrivateRoute element={<CourseFormPage />} />} />
               <Route path="/courses/:courseId/edit" element={<PrivateRoute element={<CourseFormPage />} />} />
               
-              <Route path="/" element={<Home />} />
+              {/* <Route path="/" element={<Home />} /> */}
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+
+              {/*route cho student*/}
+              <Route path="/" element={<StudentHome />} />
+              <Route path="/student/courses/:courseId" element={<StudentCourseDetail />} />
+              <Route path="/payment/callback" element={<PaymentCallback />} />
             </Routes>
           </Layout>
         </Layout>
