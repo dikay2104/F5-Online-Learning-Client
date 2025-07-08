@@ -10,3 +10,8 @@ export const createPayment = (courseId) =>
   axios.post(`${API}/payment`, { courseId }, {
     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
   });
+
+export const getMyEnrollments = () =>
+  axios.get(`${API}/me`, {
+    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+  });
