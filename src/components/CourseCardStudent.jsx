@@ -5,7 +5,7 @@ import thumbnailFallback from '../assets/thumbnail.jpg';
 const { Meta } = Card;
 const { Text, Title } = Typography;
 
-export default function CourseCardStudent({ course, onView }) {
+export default function CourseCardStudent({ course, onView, isEnrolled }) {
   const {
     title, description, price, thumbnail, level, category, duration, studentsCount, teacher,
   } = course;
@@ -21,7 +21,11 @@ export default function CourseCardStudent({ course, onView }) {
         />
       }
       actions={[
-        <Button type="primary" onClick={onView}>Xem chi tiết</Button>
+        isEnrolled ? (
+          <Button type="default" disabled>Đã tham gia</Button>
+        ) : (
+          <Button type="primary" onClick={onView}>Xem chi tiết</Button>
+        )
       ]}
     >
       <Meta
@@ -48,7 +52,7 @@ export default function CourseCardStudent({ course, onView }) {
         </Space>
         <Space>
           <DollarOutlined />
-          <Text>{price === 0 ? 'Miễn phí' : `${price.toLocaleString()}đ`}</Text>
+          <Text>{typeof price === 'number' ? (price === 0 ? 'Miễn phí' : `${price.toLocaleString()}đ`) : '---'}</Text>
         </Space>
       </Space>
     </Card>

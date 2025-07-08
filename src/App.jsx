@@ -14,6 +14,7 @@ import Loading from './components/Loading';
 import StudentHome from "./pages/student/Home";
 import StudentCourseDetail from "./pages/student/CourseDetail";
 import PaymentCallback from './pages/PaymentCallback';
+import LessonLearn from './pages/student/LessonLearn';
 function PrivateRoute({ element }) {
   const { user, loading } = useAuth();
 
@@ -45,6 +46,7 @@ export default function App() {
               <Route path="/" element={<StudentHome />} />
               <Route path="/student/courses/:courseId" element={<StudentCourseDetail />} />
               <Route path="/payment/callback" element={<PaymentCallback />} />
+              <Route path="/student/lessons/:lessonId" element={<LessonLearn />} />
             </Routes>
           </Layout>
         </Layout>
