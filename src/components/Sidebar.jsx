@@ -81,10 +81,10 @@ export default function Sidebar() {
       className="site-layout-background"
       style={{
         background: '#fff',
-        borderRadius: '0 16px 16px 0',
+        // borderRadius: '0 16px 16px 0',
         boxShadow: '2px 0 12px rgba(0,0,0,0.04)',
         minHeight: '100vh',
-        padding: '24px 0 24px 0',
+        // padding: '24px 0 24px 0',
         position: 'sticky',
         top: 0,
         zIndex: 9
@@ -100,7 +100,7 @@ export default function Sidebar() {
           borderRight: 0,
           background: 'transparent',
           fontWeight: 500,
-          fontSize: 16,
+          fontSize: 14,
           padding: '8px 0',
         }}
         className="custom-sidebar-menu"
