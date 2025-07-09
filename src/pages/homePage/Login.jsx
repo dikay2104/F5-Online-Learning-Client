@@ -24,6 +24,8 @@ export default function Login() {
           navigate("/"); // hoặc navigate("/student") nếu bạn có route riêng
         } else if (res.data.user.role === "teacher") {
           navigate("/my-courses"); // hoặc route phù hợp cho teacher
+        } else if (res.data.user.role === "admin") {
+          navigate("/admin");
         } else {
           navigate("/"); // fallback
         }

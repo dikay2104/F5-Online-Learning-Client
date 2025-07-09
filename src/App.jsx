@@ -17,6 +17,9 @@ import PaymentCallback from './pages/PaymentCallback';
 import LessonLearn from './pages/student/LessonLearn';import RoadmapFE from './pages/guest/RoadmapFE';
 import RoadmapBE from './pages/guest/RoadmapBE';
 import AboutUs from './pages/guest/AboutUs';
+import ManageUsers from "./pages/admin/ManageUsers";
+import ManageFeedback from './pages/admin/ManageFeedback';
+import ManageCourses from './pages/admin/ManageCourses';
 
 
 function PrivateRoute({ element }) {
@@ -45,6 +48,11 @@ export default function App() {
               {/* <Route path="/" element={<Home />} /> */}
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+
+              {/* route cho admin */}
+              <Route path="/admin/users" element={<ManageUsers />} />
+              <Route path="/admin/feedbacks" element={<ManageFeedback />} />
+              <Route path="/admin/courses" element={<ManageCourses />} />
 
               {/*route cho student*/}
               <Route path="/" element={<StudentHome />} />

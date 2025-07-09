@@ -38,7 +38,8 @@ export default function Sidebar() {
   const adminItems = [
     { key: '/admin/dashboard', icon: <AppstoreOutlined style={{ fontSize: 20 }} />, label: 'Dashboard' },
     { key: '/admin/users', icon: <UsergroupAddOutlined style={{ fontSize: 20 }} />, label: 'Manage Users' },
-    { key: '/admin/settings', icon: <SettingOutlined style={{ fontSize: 20 }} />, label: 'Settings' },
+    { key: '/admin/courses', icon: <BookOutlined style={{ fontSize: 20 }} />, label: 'Manage Courses' },
+    { key: '/admin/feedbacks', icon: <MessageOutlined style={{ fontSize: 20 }} />, label: 'Manage Feedback' },
   ];
 
   const guestItems = [
