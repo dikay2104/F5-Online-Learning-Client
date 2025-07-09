@@ -1,50 +1,32 @@
 body {
-  font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
-  background: #f6f8fa;
-  color: #222;
   margin: 0;
-  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.ant-layout {
-  background: #f6f8fa !important;
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
 }
 
-.ant-card, .ant-form, .ant-modal-content {
-  border-radius: 12px !important;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-}
-
-.ant-btn-primary {
-  background: #1677ff;
-  border-radius: 8px;
-  font-weight: 500;
-  box-shadow: 0 2px 8px rgba(22,119,255,0.08);
-}
-
-.ant-btn-link {
-  color: #1677ff;
-}
-
-.ant-menu {
-  border-radius: 12px;
-  font-size: 16px;
-}
-
-.ant-avatar {
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+.ant-menu-title-content {
+  margin: 0 !important;
+  text-align: center;
+  width: 100%;
 }
 
 .custom-sidebar-menu .ant-menu-item {
-  border-radius: 8px !important;
-  margin: 4px 0;
+  justify-content: flex-start !important; /* Căn trái toàn bộ item */
 }
 
-::-webkit-scrollbar {
-  width: 8px;
-  background: #f0f0f0;
+.custom-sidebar-menu .ant-menu-item .ant-menu-item-icon {
+  margin-right: 12px; /* Giãn cách icon và text */
 }
-::-webkit-scrollbar-thumb {
-  background: #e0e0e0;
-  border-radius: 8px;
+
+.custom-sidebar-menu .ant-menu-title-content {
+  text-align: left;
+  width: 100%;
 }

@@ -40,7 +40,7 @@ export default function TeacherCoursePage() {
     } finally {
       setLoading(false);
     }
-  }, [token, limit]);
+  }, [token, limit, search, status, sort]);
 
   const showConfirmDelete = (course) => {
     Modal.confirm({

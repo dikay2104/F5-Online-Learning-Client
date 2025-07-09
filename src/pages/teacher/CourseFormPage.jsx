@@ -39,7 +39,7 @@ export default function CourseFormPage() {
       setIsEdit(true);
       fetchCourse(courseId);
     }
-  }, [courseId]);
+  }, [courseId, fetchCourse]);
 
   const fetchCourse = async (id) => {
     try {
