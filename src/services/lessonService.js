@@ -3,7 +3,11 @@ import axios from 'axios';
 const API = process.env.REACT_APP_API_BASE_URL + '/lessons';
 
 export const getLessonsByCourse = (courseId) =>
-    axios.get(`${API}/course/${courseId}`);
+    axios.get(`${API}/course/${courseId}`, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+    });
 
 export const getLessonById = (lessonId) =>
     axios.get(`${API}/${lessonId}`);
