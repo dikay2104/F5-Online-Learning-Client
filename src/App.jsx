@@ -8,7 +8,7 @@ import Register from './pages/Register';
 import Home from './pages/homePage/Home';
 import MyCoursePage from './pages/MyCoursePage';
 import CourseDetailPage from './pages/teacher/CourseDetail';
-import CourseFormPage from './pages/teacher/CourseFormPage';
+import CourseFormPage from './pages/teacher/courseFormPage/CourseFormPage';
 import { AuthProvider, useAuth } from './context/authContext';
 import Loading from './components/Loading';
 import AboutUs from './pages/homePage/AboutUs';
