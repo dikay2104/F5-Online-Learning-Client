@@ -66,16 +66,16 @@ export default function CourseFilterBar({
 
 
 // Dùng cho student course page
-{/* <CourseFilterBar
-  search={search}
-  sort={sort}
-  onSearchChange={(val) => {
-    setPage(1);
-    setSearch(val);
-  }}
-  onSortChange={(val) => {
-    setPage(1);
-    setSort(val);
-  }}
-  showStatusFilter={false} //student không cần filter theo status
-/> */}
+// <CourseFilterBar
+//   search={search}
+//   sort={sort}
+//   onSearchChange={(val) => {
+//     setPage(1);
+//     setSearch(val);
+//   }}
+//   onSortChange={(val) => {
+//     setPage(1);
+//     setSort(val);
+//   }}
+//   showStatusFilter={false} //student không cần filter theo status
+// />
