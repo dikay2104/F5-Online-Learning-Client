@@ -14,10 +14,13 @@ import Loading from './components/Loading';
 import AboutUs from './pages/homePage/AboutUs';
 import RoadmapFE from './pages/guest/RoadmapFE';
 import RoadmapBE from './pages/guest/RoadmapBE';
-import AboutUs from './pages/guest/AboutUs';
 import ManageUsers from "./pages/admin/ManageUsers";
 import ManageFeedback from './pages/admin/ManageFeedback';
 import ManageCourses from './pages/admin/ManageCourses';
+import StudentHome from './pages/student/Home';
+import StudentCourseDetail from './pages/student/CourseDetail';
+import PaymentCallback from './pages/PaymentCallback';
+import LessonLearn from './pages/student/LessonLearn';
 
 function PrivateRoute({ element }) {
   const { user, loading } = useAuth();
