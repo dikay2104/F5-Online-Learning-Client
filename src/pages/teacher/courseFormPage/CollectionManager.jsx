@@ -1,9 +1,10 @@
 //courseFormPage/CollectionManager.jsx
 
-import { Collapse, Button, Modal, Form, Input, List, Select } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { Collapse, Button, Modal, Form, Input, List, Select, Row, Col, Typography, Divider, Space } from 'antd';
+import { EditOutlined, DeleteOutlined, PlusOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import { ReactSortable } from 'react-sortablejs';
 import { useEffect } from 'react';
+const { Text } = Typography;
 
 const { Panel } = Collapse;
 
@@ -47,18 +48,37 @@ export default function CollectionManager({
         {groupedLessons.map((collection) => (
           <Panel
             key={collection._id}
-            header={collection.title}
+            header={
+              <Space size="small">
+                <Text strong>{collection.title}</Text>
+                {collection.duration != null && (
+                  <Text type="secondary" style={{ fontSize: 12 }}>
+                    <ClockCircleOutlined style={{ marginRight: 4 }} />
+                    {collection.duration} phút
+                  </Text>
+                )}
+              </Space>
+            }
             extra={
-              <>
-                <Button icon={<EditOutlined />} size="small" onClick={(e) => {
-                  e.stopPropagation();
-                  onEditCollection(collection._id);
-                }} />
-                <Button icon={<DeleteOutlined />} danger size="small" onClick={(e) => {
-                  e.stopPropagation();
-                  onDeleteCollection(collection._id);
-                }} />
-              </>
+              <Space split={<Divider type="vertical" />} size={0}>
+                <Button
+                  icon={<EditOutlined />}
+                  size="small"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEditCollection(collection._id);
+                  }}
+                />
+                <Button
+                  icon={<DeleteOutlined />}
+                  danger
+                  size="small"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeleteCollection(collection._id);
+                  }}
+                />
+              </Space>
             }
           >
             <Button
@@ -91,7 +111,21 @@ export default function CollectionManager({
                       <Button icon={<DeleteOutlined />} danger size="small" onClick={() => onDeleteLesson(lesson._id)} />,
                     ]}
                   >
-                    {lesson.title}
+                    <div style={{ width: '100%' }}>
+                      <Space size="small" wrap>
+                        <Text strong>{lesson.title}</Text>
+                        {lesson.videoDuration != null && (
+                          <Text type="secondary" style={{ fontSize: 12 }}>
+                            <ClockCircleOutlined style={{ marginRight: 4 }} />
+                            {Math.floor(lesson.videoDuration / 60)}:
+                            {(lesson.videoDuration % 60).toString().padStart(2, '0')} phút
+                          </Text>
+                        )}
+                        {lesson.isPreviewable && (
+                          <Text type="success" style={{ fontSize: 12 }}>[Học thử]</Text>
+                        )}
+                      </Space>
+                    </div>
                   </List.Item>
                 )}
               />
@@ -156,9 +190,9 @@ export default function CollectionManager({
         onOk={onConfirmLesson}
         okText={editingLessonId ? 'Lưu' : 'Thêm'}
         cancelText="Huỷ"
-        okButtonProps={{
-          disabled: !lessonForm.isFieldsTouched() || lessonForm.getFieldsError().some(({ errors }) => errors.length > 0),
-        }}
+        // okButtonProps={{
+        //   disabled: !lessonForm.isFieldsTouched() || lessonForm.getFieldsError().some(({ errors }) => errors.length > 0),
+        // }}
       >
         <Form form={lessonForm} layout="vertical">
           <Form.Item name="collection" hidden rules={[{ required: false }]}>

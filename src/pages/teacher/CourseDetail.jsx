@@ -12,11 +12,14 @@ import {
   Tag,
   Divider,
   Badge,
-  Image
+  Image,
+  List
 } from 'antd';
+import { ClockCircleOutlined } from '@ant-design/icons';
 import { getLessonsByCourse } from '../../services/lessonService';
 import { getCourseById } from '../../services/courseService';
-import thumbnailFallback from '../../assets/thumbnail.jpg'; // Đảm bảo đường dẫn đúng
+import { getCollectionsByCourse } from '../../services/collectionService';
+import thumbnailFallback from '../../assets/thumbnail.jpg'; // Adjust path if needed
 
 const { Title, Text } = Typography;
 const { Panel } = Collapse;
@@ -26,6 +29,7 @@ export default function CourseDetailPage() {
   const navigate = useNavigate();
   const [course, setCourse] = useState(null);
   const [lessons, setLessons] = useState([]);
+  const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
   const token = localStorage.getItem('token');
 
@@ -37,8 +41,11 @@ export default function CourseDetailPage() {
 
         const lessonRes = await getLessonsByCourse(courseId);
         setLessons(lessonRes.data.data);
+
+        const collectionRes = await getCollectionsByCourse(courseId);
+        setCollections(collectionRes.data.data);
       } catch (err) {
-        message.error('Không thể tải khoá học');
+        message.error('Không thể tải khóa học');
       } finally {
         setLoading(false);
       }
@@ -47,19 +54,26 @@ export default function CourseDetailPage() {
     fetchData();
   }, [courseId, token]);
 
+  const ungroupedLessons = lessons.filter(l => !l.collection);
+
   if (loading) {
     return <Spin size="large" style={{ display: 'flex', justifyContent: 'center', marginTop: 48 }} />;
   }
 
   if (!course) {
-    return <div style={{ padding: 24 }}><Card><Title level={3}>Không tìm thấy khóa học</Title></Card></div>;
+    return (
+      <div style={{ padding: 24 }}>
+        <Card>
+          <Title level={3}>Không tìm thấy khóa học</Title>
+        </Card>
+      </div>
+    );
   }
 
   return (
     <div style={{ padding: 24 }}>
       <Card>
         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-          {/* Hiển thị hình ảnh thumbnail */}
           <Image
             width={320}
             src={course.thumbnail || thumbnailFallback}
@@ -86,10 +100,9 @@ export default function CourseDetailPage() {
               <Tag color="purple">{course.category}</Tag>
             </Descriptions.Item>
             <Descriptions.Item label="Thời lượng">
-              {/* {(course.duration / 60).toFixed(1)} phút */}
               {course.duration >= 3600
-              ? `${Math.floor(course.duration / 3600)} giờ ${Math.floor((course.duration % 3600) / 60)} phút`
-              : `${Math.floor(course.duration / 60)} phút`}
+                ? `${Math.floor(course.duration / 3600)} giờ ${Math.floor((course.duration % 3600) / 60)} phút`
+                : `${Math.floor(course.duration / 60)} phút`}
             </Descriptions.Item>
             <Descriptions.Item label="Số học viên">{course.studentsCount}</Descriptions.Item>
             <Descriptions.Item label="Trạng thái">
@@ -101,38 +114,93 @@ export default function CourseDetailPage() {
             <Descriptions.Item label="Giảng viên">{course.teacher?.fullName}</Descriptions.Item>
           </Descriptions>
 
-          <Button type="primary" onClick={() => navigate(`/courses/${courseId}/edit`)}>Chỉnh sửa khoá học</Button>
+          <Button type="primary" onClick={() => navigate(`/courses/${courseId}/edit`)}>
+            Chỉnh sửa khóa học
+          </Button>
         </Space>
       </Card>
 
       <Divider />
 
       <Card title="Danh sách bài học" style={{ marginTop: 24 }}>
-        <Button
-          type="dashed"
-          style={{ marginBottom: 12 }}
-          onClick={() => navigate(`/courses/${courseId}/lessons/create`)}
-        >
-          Thêm bài học
-        </Button>
-
         <Collapse accordion>
-          {lessons.map((lesson) => (
-            <Panel header={lesson.title} key={lesson._id}>
-              <p><b>Mô tả:</b> {lesson.description}</p>
-              <p><b>Thời lượng:</b> {(lesson.videoDuration / 60).toFixed(1)} phút</p>
-              <p><b>Xem trước:</b> {lesson.isPreviewable ? 'Có' : 'Không'}</p>
-              <p>
-                <b>Tài nguyên:</b>{' '}
-                {lesson.resources.map((link, index) => (
-                  <div key={index}>
-                    <a href={link} target="_blank" rel="noopener noreferrer">{link}</a>
-                  </div>
-                ))}
-              </p>
-              <Button type="link" onClick={() => navigate(`/lessons/${lesson._id}/edit`)}>Chỉnh sửa bài học</Button>
+          {/* Collections */}
+          {collections.map((collection) => {
+            const lessonsInCollection = lessons.filter(l => l.collection === collection._id);
+            return (
+              <Panel
+                key={collection._id}
+                header={
+                  <Space size="small">
+                    <Text strong>{collection.title}</Text>
+                    {collection.duration != null && (
+                      <Text type="secondary" style={{ fontSize: 12 }}>
+                        <ClockCircleOutlined style={{ marginRight: 4 }} />
+                        {collection.duration} phút
+                      </Text>
+                    )}
+                  </Space>
+                }
+              >
+                <List
+                  dataSource={lessonsInCollection}
+                  bordered
+                  renderItem={(lesson) => (
+                    <List.Item
+                      actions={[
+                        <Button type="link" onClick={() => navigate(`/lessons/${lesson._id}/edit`)}>Chỉnh sửa</Button>
+                      ]}
+                    >
+                      <Space size="small" wrap>
+                        <Text strong>{lesson.title}</Text>
+                        {lesson.videoDuration != null && (
+                          <Text type="secondary" style={{ fontSize: 12 }}>
+                            <ClockCircleOutlined style={{ marginRight: 4 }} />
+                            {Math.floor(lesson.videoDuration / 60)}:
+                            {(lesson.videoDuration % 60).toString().padStart(2, '0')} phút
+                          </Text>
+                        )}
+                        {lesson.isPreviewable && (
+                          <Text type="success" style={{ fontSize: 12 }}>[Học thử]</Text>
+                        )}
+                      </Space>
+                    </List.Item>
+                  )}
+                />
+              </Panel>
+            );
+          })}
+
+          {/* Ungrouped Lessons */}
+          {ungroupedLessons.length > 0 && (
+            <Panel key="ungrouped" header="Bài học chưa có Collection">
+              <List
+                dataSource={ungroupedLessons}
+                bordered
+                renderItem={(lesson) => (
+                  <List.Item
+                    actions={[
+                      <Button type="link" onClick={() => navigate(`/lessons/${lesson._id}/edit`)}>Chỉnh sửa</Button>
+                    ]}
+                  >
+                    <Space size="small" wrap>
+                      <Text strong>{lesson.title}</Text>
+                      {lesson.videoDuration != null && (
+                        <Text type="secondary" style={{ fontSize: 12 }}>
+                          <ClockCircleOutlined style={{ marginRight: 4 }} />
+                          {Math.floor(lesson.videoDuration / 60)}:
+                          {(lesson.videoDuration % 60).toString().padStart(2, '0')} phút
+                        </Text>
+                      )}
+                      {lesson.isPreviewable && (
+                        <Text type="success" style={{ fontSize: 12 }}>[Học thử]</Text>
+                      )}
+                    </Space>
+                  </List.Item>
+                )}
+              />
             </Panel>
-          ))}
+          )}
         </Collapse>
       </Card>
     </div>
