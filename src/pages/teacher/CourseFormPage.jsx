@@ -34,13 +34,6 @@ export default function CourseFormPage() {
 
   usePrompt('Bạn có thay đổi chưa lưu. Bạn có chắc chắn muốn rời khỏi trang?', hasUnsavedChanges);
 
-  useEffect(() => {
-    if (courseId) {
-      setIsEdit(true);
-      fetchCourse(courseId);
-    }
-  }, [courseId, fetchCourse]);
-
   const fetchCourse = async (id) => {
     try {
       setLoading(true);
@@ -62,6 +55,13 @@ export default function CourseFormPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (courseId) {
+      setIsEdit(true);
+      fetchCourse(courseId);
+    }
+  }, [courseId]);
 
   const handleDeleteLesson = async (lessonId) => {
     try {
