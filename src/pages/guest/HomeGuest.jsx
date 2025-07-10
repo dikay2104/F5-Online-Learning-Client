@@ -5,7 +5,7 @@ import CourseCard from '../../components/CourseCard';
 
 const { Title } = Typography;
 
-export default function Home() {
+export default function HomeGuest() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -50,4 +50,4 @@ export default function Home() {
       }
     </div>
   );
-}
+} 
