@@ -13,12 +13,16 @@ import {
   Divider,
   Badge,
   Image,
-  List
+  List,
+  Rate,
+  Avatar
 } from 'antd';
 import { ClockCircleOutlined } from '@ant-design/icons';
 import { getLessonsByCourse } from '../../services/lessonService';
 import { getCourseById } from '../../services/courseService';
 import { getCollectionsByCourse } from '../../services/collectionService';
+import { getFeedbacksByCourse } from '../../services/feedbackService';
+import { UserOutlined } from '@ant-design/icons';
 import thumbnailFallback from '../../assets/thumbnail.jpg'; // Adjust path if needed
 
 const { Title, Text } = Typography;
@@ -31,6 +35,8 @@ export default function CourseDetailPage() {
   const [lessons, setLessons] = useState([]);
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [feedbackLoading, setFeedbackLoading] = useState(true);
   const token = localStorage.getItem('token');
 
   useEffect(() => {
@@ -52,6 +58,13 @@ export default function CourseDetailPage() {
     };
 
     fetchData();
+    setFeedbackLoading(true);
+    getFeedbacksByCourse(courseId)
+      .then(res => {
+        setFeedbacks(res.data.feedbacks || []);
+      })
+      .catch(() => setFeedbacks([]))
+      .finally(() => setFeedbackLoading(false));
   }, [courseId, token]);
 
   const ungroupedLessons = lessons.filter(l => !l.collection);
@@ -118,6 +131,52 @@ export default function CourseDetailPage() {
             Chỉnh sửa khóa học
           </Button>
         </Space>
+      </Card>
+
+      <Divider />
+
+      <Card
+        style={{
+          borderRadius: 16,
+          boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+          padding: 24,
+          marginBottom: 32,
+        }}
+      >
+        <Title level={4} style={{ marginBottom: 0 }}>Đánh giá khóa học</Title>
+        {feedbackLoading ? <Spin /> : (
+          <>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              <Rate allowHalf disabled value={
+                feedbacks.length > 0
+                  ? feedbacks.reduce((sum, f) => sum + (f.rating || 0), 0) / feedbacks.length
+                  : 0
+              } />
+              <Text strong style={{ fontSize: 18 }}>
+                {feedbacks.length > 0
+                  ? (feedbacks.reduce((sum, f) => sum + (f.rating || 0), 0) / feedbacks.length).toFixed(1)
+                  : 0}
+              </Text>
+              <Text type="secondary">({feedbacks.length} đánh giá)</Text>
+            </div>
+            <List
+              dataSource={feedbacks}
+              locale={{ emptyText: "Chưa có đánh giá nào" }}
+              renderItem={fb => (
+                <List.Item style={{ borderBottom: '1px solid #f0f0f0' }}>
+                  <List.Item.Meta
+                    avatar={<Avatar icon={<UserOutlined />} />}
+                    title={<span>
+                      <b>{fb.student?.fullName || fb.student?.email || "Học viên"}</b>
+                      <Rate disabled value={fb.rating} style={{ fontSize: 14, marginLeft: 8 }} />
+                    </span>}
+                    description={fb.comment}
+                  />
+                </List.Item>
+              )}
+            />
+          </>
+        )}
       </Card>
 
       <Divider />
