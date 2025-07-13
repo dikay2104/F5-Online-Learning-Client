@@ -25,6 +25,7 @@ export default function Sidebar() {
 
   const commonHomeItem = { key: '/', icon: <AppstoreOutlined />, label: 'Home' };
   const commonAboutItem = { key: '/about', icon: <ExclamationCircleOutlined />, label: 'About Us' };
+  const profileItem = { key: '/profile', icon: <SettingOutlined />, label: 'Profile' };
 
   const studentItems = [
     commonHomeItem,

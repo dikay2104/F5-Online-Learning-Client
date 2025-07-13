@@ -97,11 +97,7 @@ export default function StudentCourseDetail() {
           {isEnrolled && (
             <Button type="primary" style={{ marginTop: 16 }}
               onClick={() => {
-                if (course.lessons && course.lessons.length > 0) {
-                  navigate(`/student/lessons/${course.lessons[0]._id}`);
-                } else {
-                  message.info('Khoá học chưa có bài học nào!');
-                }
+                navigate('/my-courses');
               }}
             >
               Vào học

@@ -45,3 +45,17 @@ export const reorderLessons = (token, reorderList) =>
   axios.put(`${API}/reorder`, reorderList, {
     headers: { Authorization: `Bearer ${token}` }
   });
+
+export const saveLessonProgress = (lessonId, data) =>
+  axios.post(`${API}/${lessonId}/progress`, data, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    },
+  });
+
+export const getProgressByCourse = (courseId) =>
+  axios.get(`${API}/course/${courseId}/progress`, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    },
+  });

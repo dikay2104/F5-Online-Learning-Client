@@ -23,3 +23,8 @@ export const unbanUser = (id) =>
   axios.put(`${API}/${id}/unban`, {}, {
     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
   });
+
+export const updateCurrentUser = (data) =>
+  axios.put(`${API}/profile`, data, {
+    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+  });
