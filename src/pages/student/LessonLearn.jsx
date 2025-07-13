@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { List, Button, Card, Spin } from 'antd';
 import { getLessonsByCourse } from '../../services/lessonService';
 import { getCourseById } from '../../services/courseService';
+import { useAuth } from '../../context/authContext';
 
 function getYoutubeEmbedUrl(url) {
   const match = url && url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([\w-]{11})/);
@@ -12,32 +13,37 @@ function getYoutubeEmbedUrl(url) {
 export default function LessonLearn() {
   const { lessonId } = useParams();
   const navigate = useNavigate();
+  const { setUser } = useAuth();
   const [lesson, setLesson] = useState(null);
   const [lessons, setLessons] = useState([]);
+  const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Giả sử lessonId là ObjectId, cần lấy courseId từ lesson hoặc truyền qua location state
-    // Ở đây demo: lấy tất cả lessons của course đầu tiên có lessonId trùng
-    // Thực tế bạn nên có API getLessonById trả về cả courseId
     async function fetchData() {
       setLoading(true);
-      // Tìm course chứa lesson này (giả sử lessons có courseId)
-      // Ở đây bạn cần chỉnh lại cho đúng API thực tế
-      // Demo: lấy tất cả courses, tìm course chứa lessonId
-      // Hoặc truyền courseId qua location state khi chuyển trang
-      // Ở đây sẽ giả lập lấy courseId từ localStorage (bạn nên tối ưu lại)
       const courseId = localStorage.getItem('currentCourseId');
       if (!courseId) return;
-      const courseRes = await getCourseById(courseId);
-      const lessonsRes = await getLessonsByCourse(courseId);
-      setLessons(lessonsRes.data.data);
-      const found = lessonsRes.data.data.find(l => l._id === lessonId);
-      setLesson(found);
-      setLoading(false);
+      const token = localStorage.getItem('token');
+      try {
+        const courseRes = await getCourseById(courseId, token);
+        setCourse(courseRes.data.data);
+        const lessonsRes = await getLessonsByCourse(courseId);
+        setLessons(lessonsRes.data.data);
+        const found = lessonsRes.data.data.find(l => l._id === lessonId);
+        setLesson(found);
+      } catch (err) {
+        if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+          localStorage.removeItem('token');
+          setUser(null);
+          navigate('/login');
+        }
+      } finally {
+        setLoading(false);
+      }
     }
     fetchData();
-  }, [lessonId]);
+  }, [lessonId, setUser, navigate]);
 
   if (loading || !lesson) return <Spin size="large" style={{ display: 'flex', justifyContent: 'center', marginTop: 48 }} />;
 

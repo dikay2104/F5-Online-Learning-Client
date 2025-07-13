@@ -15,16 +15,21 @@ export default function StudentCourseDetail() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    getCourseById(courseId)
+    const token = localStorage.getItem('token');
+    getCourseById(courseId, token)
       .then(res => {
+        console.log('API course detail response:', res.data);
         setCourse(res.data.data || res.data);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch((err) => {
+        console.error('API course detail error:', err);
+        setLoading(false);
+      });
     // Kiểm tra enrollment
     if (user) {
       getMyEnrollments().then(res => {
-        const enrolled = res.data.data.some(e => e.course._id === courseId && e.status === 'active');
+        const enrolled = res.data.data.some(e => e.course && e.course._id === courseId && e.status === 'active');
         setIsEnrolled(enrolled);
       });
     }
@@ -90,7 +95,11 @@ export default function StudentCourseDetail() {
             </>
           )}
           {isEnrolled && (
-            <Button type="primary" disabled style={{ marginTop: 16 }}>
+            <Button type="primary" style={{ marginTop: 16 }}
+              onClick={() => {
+                navigate('/my-courses');
+              }}
+            >
               Vào học
             </Button>
           )}
