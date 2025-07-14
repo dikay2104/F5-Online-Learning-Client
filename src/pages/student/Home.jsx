@@ -79,12 +79,21 @@ export default function StudentHome() {
   return (
     <div style={{ padding: 24 }}>
       <h2>Danh sách khóa học</h2>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 24 }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 32, justifyContent: 'flex-start' }}>
         {courses.length === 0 ? (
           <p>Không có khóa học nào.</p>
         ) : (
           courses.map(course => (
-            <div key={course._id}>
+            <div
+              key={course._id}
+              style={{
+                flex: '1 1 260px',
+                minWidth: 260,
+                maxWidth: 340,
+                boxSizing: 'border-box',
+                display: 'flex',
+              }}
+            >
               <CourseCardStudent
                 course={course}
                 isEnrolled={enrolledCourseIds.includes(course._id)}

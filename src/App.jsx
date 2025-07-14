@@ -4,8 +4,7 @@ import { Layout } from 'antd';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 import Login from './pages/homePage/Login';
-import Register from './pages/Register';
-import Home from './pages/homePage/Home';
+import Register from './pages/homePage/Register';
 import MyCoursePage from './pages/MyCoursePage';
 import CourseDetailPage from './pages/teacher/CourseDetail';
 import CourseFormPage from './pages/teacher/courseFormPage/CourseFormPage';
@@ -22,7 +21,8 @@ import StudentCourseDetail from './pages/student/CourseDetail';
 import PaymentCallback from './pages/PaymentCallback';
 import LessonLearn from './pages/student/LessonLearn';
 import Profile from './pages/Profile';
-
+import GuestHome from './pages/guest/Home';
+import ProgressPage from './pages/ProgressPage';
 function PrivateRoute({ element }) {
   const { user, loading } = useAuth();
 
@@ -56,21 +56,22 @@ export default function App() {
               <Route path="/admin/courses" element={<ManageCourses />} />
 
               {/*route cho student*/}
-              <Route path="/" element={<StudentHome />} />
+              <Route path="/student/home" element={<StudentHome />} />
               <Route path="/student/courses/:courseId" element={<StudentCourseDetail />} />
               <Route path="/payment/callback" element={<PaymentCallback />} />
               <Route path="/student/lessons/:lessonId" element={<LessonLearn />} />
 
               {/* Route cho user profile */}
               <Route path="/profile" element={<PrivateRoute element={<Profile />} />} />
+              
+              {/* Route cho progress */}
+              <Route path="/progress" element={<PrivateRoute element={<ProgressPage />} />} />
 
               {/* Route cho guest */}
               <Route path="/about" element={<AboutUs />} />
               <Route path="/roadmap-fe" element={<RoadmapFE />} />
               <Route path="/roadmap-be" element={<RoadmapBE />} />
-              <Route path="/" element={<Home />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
+              <Route path="/guest/home" element={<GuestHome />} />
             </Routes>
           </Layout>
         </Layout>
