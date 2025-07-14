@@ -1,14 +1,16 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { List, Button, Card, Spin } from 'antd';
+import { List, Button, Card, Spin, Collapse, Space, Typography } from 'antd';
 import { getLessonsByCourse } from '../../services/lessonService';
 import { getCourseById } from '../../services/courseService';
+import { getCollectionsByCourse } from '../../services/collectionService';
 import { useAuth } from '../../context/authContext';
-import { Rate, Form, Input, message, Typography, Avatar, Spin as AntdSpin } from 'antd';
+import { Rate, Form, Input, message, Typography as AntdTypography, Avatar, Spin as AntdSpin } from 'antd';
 import { getFeedbacksByCourse, createFeedback } from '../../services/feedbackService';
-import { UserOutlined } from '@ant-design/icons';
-import VideoPlayer from '../../components/VideoPlayer';
-const { Title } = Typography;
+import { UserOutlined, ClockCircleOutlined, PlayCircleOutlined } from '@ant-design/icons';
+
+const { Title, Text } = AntdTypography;
+const { Panel } = Collapse;
 
 function getVideoEmbedUrl(url) {
   // YouTube
@@ -33,6 +35,7 @@ export default function LessonLearn() {
   const { setUser } = useAuth();
   const [lesson, setLesson] = useState(null);
   const [lessons, setLessons] = useState([]);
+  const [collections, setCollections] = useState([]);
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [feedbacks, setFeedbacks] = useState([]);
@@ -58,10 +61,10 @@ export default function LessonLearn() {
         setLessons(lessonsRes.data.data);
         const found = lessonsRes.data.data.find(l => l._id === lessonId);
         setLesson(found);
-        console.log('lessonId:', lessonId, 'courseId:', courseId, 'lesson:', found, 'course:', courseRes.data.data);
-        if (!found) {
-          console.error('Không tìm thấy lesson phù hợp với lessonId:', lessonId);
-        }
+
+        // Lấy collections
+        const collectionsRes = await getCollectionsByCourse(courseId);
+        setCollections(collectionsRes.data.data || []);
       } catch (err) {
         if (err.response && (err.response.status === 401 || err.response.status === 403)) {
           localStorage.removeItem('token');
@@ -127,7 +130,13 @@ export default function LessonLearn() {
   // Kiểm tra user đã gửi feedback chưa
   const userId = user?.id || user?._id;
   const hasFeedback = !!(userId && feedbacks.some(fb => String(fb.student?._id) === String(userId)));
-  console.log('userId:', userId, 'feedbacks:', feedbacks.map(fb => fb.student?._id), 'user:', user, 'feedbacks full:', feedbacks);
+
+  // Nhóm lessons theo collection
+  const ungroupedLessons = lessons.filter(l => !l.collection);
+  const groupedLessons = collections.map(collection => ({
+    ...collection,
+    lessons: lessons.filter(l => l.collection === collection._id).sort((a, b) => a.order - b.order),
+  }));
 
   if (loading) return <Spin size="large" style={{ display: 'flex', justifyContent: 'center', marginTop: 48 }} />;
   if (!lesson) {
@@ -252,23 +261,119 @@ export default function LessonLearn() {
           )}
         </Card>
       </div>
-      {/* Sidebar danh sách bài học */}
+      {/* Sidebar danh sách bài học với collection */}
       <div style={{ flex: 1, background: '#fafafa', padding: 24, borderLeft: '1px solid #eee', overflowY: 'auto' }}>
-        <h3>Nội dung khóa học</h3>
-        <List
-          dataSource={lessons}
-          renderItem={item => (
-            <List.Item
-              style={{ background: item._id === lessonId ? '#e6f7ff' : undefined, cursor: 'pointer' }}
-              onClick={() => navigate(`/student/lessons/${item._id}`)}
+        <h3 style={{ marginBottom: 16 }}>Nội dung khóa học</h3>
+        
+        <Collapse 
+          accordion 
+          defaultActiveKey={(() => {
+            // Tự động mở collection chứa lesson hiện tại
+            const currentCollection = groupedLessons.find(collection => 
+              collection.lessons.some(l => l._id === lessonId)
+            );
+            return currentCollection ? [currentCollection._id] : [];
+          })()}
+          style={{ background: 'transparent' }}
+        >
+          {/* Collections */}
+          {groupedLessons.map((collection) => (
+            <Panel
+              key={collection._id}
+              header={
+                <Space size="small">
+                  <Text strong>{collection.title}</Text>
+                  {collection.duration != null && (
+                    <Text type="secondary" style={{ fontSize: 12 }}>
+                      <ClockCircleOutlined style={{ marginRight: 4 }} />
+                      {collection.duration} phút
+                    </Text>
+                  )}
+                </Space>
+              }
+              style={{ marginBottom: 8, borderRadius: 8 }}
             >
-              <div>
-                <b>{item.title}</b>
-                <div style={{ fontSize: 12, color: '#888' }}>{item.videoDuration ? Math.floor(item.videoDuration / 60) : 0} phút</div>
-              </div>
-            </List.Item>
+              <List
+                dataSource={collection.lessons}
+                size="small"
+                renderItem={(item) => (
+                  <List.Item
+                    style={{ 
+                      background: item._id === lessonId ? '#e6f7ff' : undefined, 
+                      cursor: 'pointer',
+                      borderRadius: 6,
+                      marginBottom: 4,
+                      padding: '8px 12px',
+                      border: item._id === lessonId ? '1px solid #1890ff' : '1px solid transparent'
+                    }}
+                    onClick={() => navigate(`/student/lessons/${item._id}`)}
+                  >
+                    <div style={{ width: '100%' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <PlayCircleOutlined style={{ color: '#1890ff', fontSize: 16 }} />
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontWeight: item._id === lessonId ? 'bold' : 'normal' }}>
+                            {item.title}
+                          </div>
+                          <div style={{ fontSize: 12, color: '#888' }}>
+                            {item.videoDuration ? Math.floor(item.videoDuration / 60) : 0} phút
+                            {item.isPreviewable && (
+                              <span style={{ color: '#52c41a', marginLeft: 8 }}>[Học thử]</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </List.Item>
+                )}
+              />
+            </Panel>
+          ))}
+
+          {/* Ungrouped Lessons */}
+          {ungroupedLessons.length > 0 && (
+            <Panel 
+              key="ungrouped" 
+              header="Bài học chưa có Collection"
+              style={{ marginBottom: 8, borderRadius: 8 }}
+            >
+              <List
+                dataSource={ungroupedLessons}
+                size="small"
+                renderItem={(item) => (
+                  <List.Item
+                    style={{ 
+                      background: item._id === lessonId ? '#e6f7ff' : undefined, 
+                      cursor: 'pointer',
+                      borderRadius: 6,
+                      marginBottom: 4,
+                      padding: '8px 12px',
+                      border: item._id === lessonId ? '1px solid #1890ff' : '1px solid transparent'
+                    }}
+                    onClick={() => navigate(`/student/lessons/${item._id}`)}
+                  >
+                    <div style={{ width: '100%' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <PlayCircleOutlined style={{ color: '#1890ff', fontSize: 16 }} />
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontWeight: item._id === lessonId ? 'bold' : 'normal' }}>
+                            {item.title}
+                          </div>
+                          <div style={{ fontSize: 12, color: '#888' }}>
+                            {item.videoDuration ? Math.floor(item.videoDuration / 60) : 0} phút
+                            {item.isPreviewable && (
+                              <span style={{ color: '#52c41a', marginLeft: 8 }}>[Học thử]</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </List.Item>
+                )}
+              />
+            </Panel>
           )}
-        />
+        </Collapse>
       </div>
     </div>
   );

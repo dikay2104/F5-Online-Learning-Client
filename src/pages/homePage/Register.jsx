@@ -1,7 +1,7 @@
 // src/pages/Register.jsx
 import { Button, Form, Input, Select, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { register, sendVerificationCode } from '../services/authService';
+import { register, sendVerificationCode } from '../../services/authService';
 import { useState } from 'react';
 
 export default function Register() {
