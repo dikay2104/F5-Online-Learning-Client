@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Table, message, Tag, Input, Select, Button, Modal } from "antd";
 import { getAllCourses, approveCourse, rejectCourse } from "../../services/courseService";
+import { useNavigate } from "react-router-dom";
 const { Option } = Select;
 
 export default function ManageCourses() {
@@ -10,6 +11,7 @@ export default function ManageCourses() {
   const [statusFilter, setStatusFilter] = useState("");
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchCourses();
@@ -69,7 +71,7 @@ export default function ManageCourses() {
       title: "Hành động",
       key: "action",
       render: (_, record) => (
-        <Button type="link" onClick={() => handleViewDetail(record)}>
+        <Button type="link" onClick={() => navigate(`/courses/${record._id}`)}>
           Xem chi tiết
         </Button>
       )
@@ -115,41 +117,6 @@ export default function ManageCourses() {
         loading={loading}
         pagination={{ pageSize: 10 }}
       />
-
-      <Modal
-        title="Chi tiết khóa học"
-        open={detailModalOpen}
-        onCancel={() => setDetailModalOpen(false)}
-        footer={null}
-        width={600}
-      >
-        {selectedCourse && (
-          <div>
-            <p><b>Tên:</b> {selectedCourse.title}</p>
-            <p><b>Mô tả:</b> {selectedCourse.description}</p>
-            <p><b>Giáo viên:</b> {selectedCourse.teacher?.fullName || "Không rõ"}</p>
-            <p><b>Trạng thái:</b> {selectedCourse.status}</p>
-            {/* ... các thông tin khác */}
-            {selectedCourse.status === "pending" && (
-              <div style={{ marginTop: 24 }}>
-                <Button
-                  type="primary"
-                  onClick={() => handleApprove(selectedCourse._id)}
-                  style={{ marginRight: 8 }}
-                >
-                  Duyệt
-                </Button>
-                <Button
-                  danger
-                  onClick={() => handleReject(selectedCourse._id)}
-                >
-                  Từ chối
-                </Button>
-              </div>
-            )}
-          </div>
-        )}
-      </Modal>
     </div>
   );
 }

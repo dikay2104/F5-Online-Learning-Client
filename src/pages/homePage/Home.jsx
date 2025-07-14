@@ -2,12 +2,22 @@ import { useEffect, useState } from 'react';
 import { Row, Col, Typography, Divider, Spin, Empty } from 'antd';
 import { getAllCourses } from '../../services/courseService';
 import CourseCard from '../../components/CourseCard';
+import { useAuth } from '../../context/authContext';
+import { useNavigate } from 'react-router-dom';
 
 const { Title } = Typography;
 
 export default function Home() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user && user.role === 'admin') {
+      navigate('/admin/dashboard');
+    }
+  }, [user, navigate]);
 
   useEffect(() => {
     getAllCourses()
