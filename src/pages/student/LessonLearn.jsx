@@ -10,10 +10,22 @@ import { UserOutlined } from '@ant-design/icons';
 import VideoPlayer from '../../components/VideoPlayer';
 const { Title } = Typography;
 
-function getYoutubeEmbedUrl(url) {
-  const match = url && url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([\w-]{11})/);
-  return match ? `https://www.youtube.com/embed/${match[1]}` : null;
+function getVideoEmbedUrl(url) {
+  // YouTube
+  const youtubeMatch = url?.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([\w-]{11})/);
+  if (youtubeMatch) {
+    return `https://www.youtube.com/embed/${youtubeMatch[1]}`;
+  }
+
+  // Google Drive
+  const driveMatch = url?.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)\//);
+  if (driveMatch) {
+    return `https://drive.google.com/file/d/${driveMatch[1]}/preview`;
+  }
+
+  return null;
 }
+
 
 export default function LessonLearn() {
   const { lessonId } = useParams();
@@ -136,27 +148,29 @@ export default function LessonLearn() {
     <div style={{ display: 'flex', height: '100vh' }}>
       {/* Video + nội dung */}
       <div style={{ flex: 2, padding: 32, background: '#fff' }}>
-        <VideoPlayer 
-          lesson={lesson}
-          courseId={course?._id}
-          onProgressUpdate={(progressData) => {
-            console.log('Progress updated:', progressData);
-          }}
-        />
-        
-        <Card style={{ marginTop: 24 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <Button disabled={!prevLesson} onClick={() => prevLesson && navigate(`/student/lessons/${prevLesson._id}`)}>
-                &lt; Bài trước
-              </Button>
-              <Button disabled={!nextLesson} style={{ marginLeft: 8 }} onClick={() => nextLesson && navigate(`/student/lessons/${nextLesson._id}`)}>
-                Bài tiếp theo &gt;
-              </Button>
-            </div>
-            <div style={{ fontSize: '14px', color: '#666' }}>
-              {currentIdx + 1} / {lessons.length} bài học
-            </div>
+        <Card style={{ marginBottom: 24 }}>
+          {lesson.videoUrl && getVideoEmbedUrl(lesson.videoUrl) ? (
+            <iframe
+              width="100%"
+              height="400"
+              src={getVideoEmbedUrl(lesson.videoUrl)}
+              title={lesson.title}
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe>
+          ) : (
+            <div>Không có video cho bài học này.</div>
+          )}
+          <h2 style={{ marginTop: 16 }}>{lesson.title}</h2>
+          <div style={{ color: '#888', marginBottom: 8 }}>{lesson.description}</div>
+          <div>
+            <Button disabled={!prevLesson} onClick={() => prevLesson && navigate(`/student/lessons/${prevLesson._id}`)}>
+              &lt; Bài trước
+            </Button>
+            <Button disabled={!nextLesson} style={{ marginLeft: 8 }} onClick={() => nextLesson && navigate(`/student/lessons/${nextLesson._id}`)}>
+              Bài tiếp theo &gt;
+            </Button>
           </div>
         </Card>
         {/* Feedback section dưới video */}
