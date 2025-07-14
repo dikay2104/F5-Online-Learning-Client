@@ -32,6 +32,12 @@ export default function StudentCourseDetail() {
   const [lessons, setLessons] = useState([]);
 
   useEffect(() => {
+    if (user?.role === 'admin') {
+      navigate(`/courses/${courseId}`);
+    }
+  }, [user, courseId, navigate]);
+
+  useEffect(() => {
     const token = localStorage.getItem('token');
     getCourseById(courseId, token)
       .then(res => {
@@ -189,13 +195,15 @@ export default function StudentCourseDetail() {
               </Tooltip>
             </div>
             <div style={{ marginTop: 20 }}>
-              {!isEnrolled ? (
+              
+              {/* Ẩn nút tham gia/thanh toán nếu là admin */}
+              {user?.role !== 'admin' && (!isEnrolled ? (
                 <Button type="primary" size="large" shape="round" onClick={handleJoin}>
                   {course.price === 0 ? "Tham gia học" : "Thanh toán"}
                 </Button>
               ) : (
                 <Tag color="success" style={{ fontSize: 16, padding: '4px 16px' }}>Đã tham gia</Tag>
-              )}
+              ))}
             </div>
           </div>
         </Card>
@@ -362,7 +370,7 @@ export default function StudentCourseDetail() {
           width={800}
           title={selectedLesson ? selectedLesson.title : ""}
         >
-          {selectedLesson && (
+          {selectedLesson && user?.role !== 'admin' && (
             <div style={{ textAlign: 'center' }}>
               <iframe
                 width="720"

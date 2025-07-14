@@ -11,7 +11,8 @@ export default function Login() {
     try {
       const res = await login(values);
       localStorage.setItem('token', res.data.token);
-      setUser(res.data.user); // set context
+      localStorage.setItem('user', JSON.stringify(res.data.user)); // Dòng này rất quan trọng!
+      setUser(res.data.user);
       message.success('Login successful');
       // Xử lý redirect sau khi login
       const redirect = localStorage.getItem("redirectAfterLogin");
