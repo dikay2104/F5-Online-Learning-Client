@@ -37,6 +37,7 @@ export default function MyCoursesPage() {
     async function fetchFirstLessons() {
       const promises = enrollments.map(async (enrollment) => {
         const course = enrollment.course;
+        if (!course || !course._id) return [null, undefined];
         try {
           const res = await getLessonsByCourse(course._id);
           if (res.data.data && res.data.data.length > 0) {
@@ -48,7 +49,7 @@ export default function MyCoursesPage() {
       const results = await Promise.all(promises);
       const map = {};
       results.forEach(([courseId, lessonId]) => {
-        if (lessonId) map[courseId] = lessonId;
+        if (courseId && lessonId) map[courseId] = lessonId;
       });
       setFirstLessonMap(map);
     }
@@ -60,6 +61,7 @@ export default function MyCoursesPage() {
     async function fetchLessonCounts() {
       const promises = enrollments.map(async (enrollment) => {
         const course = enrollment.course;
+        if (!course || !course._id) return [null, 0];
         try {
           const res = await getLessonsByCourse(course._id);
           return [course._id, res.data.data.length];
@@ -70,7 +72,7 @@ export default function MyCoursesPage() {
       const results = await Promise.all(promises);
       const map = {};
       results.forEach(([courseId, count]) => {
-        map[courseId] = count;
+        if (courseId) map[courseId] = count;
       });
       setLessonCounts(map);
     }
@@ -81,6 +83,7 @@ export default function MyCoursesPage() {
   useEffect(() => {
     enrollments.forEach(enrollment => {
       const course = enrollment.course;
+      if (!course || !course._id) return;
       getProgressByCourse(course._id)
         .then(res => {
           const progressesArr = res.data.data || [];
@@ -99,56 +102,67 @@ export default function MyCoursesPage() {
   if (user?.role !== 'student') return <Navigate to="/" />;
   if (loading) return <Loading />;
 
+  // Nếu không có khóa học nào
+  if (!enrollments || enrollments.length === 0 || enrollments.every(e => !e.course || !e.course._id)) {
+    return (
+      <div style={{ padding: 48, textAlign: 'center', color: '#888', fontWeight: 500 }}>
+        Bạn chưa tham gia khóa học nào.<br/>
+        Hãy đăng ký hoặc tham gia một khóa học để bắt đầu học tập!
+      </div>
+    );
+  }
+
   return (
     <div style={{ padding: 24 }}>
       <h2>Khóa học của tôi</h2>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24 }}>
-        {enrollments.length === 0 ? (
-          <p>Bạn chưa tham gia khóa học nào.</p>
-        ) : (
-          enrollments
-            .filter(enrollment => enrollment.course && enrollment.course._id)
-            .map(enrollment => {
-              const course = enrollment.course;
-              const firstLessonId = firstLessonMap[course._id];
-              const percent = progresses[course._id] || 0;
-              return (
-                <div key={course._id}>
-                  <Card
-                    hoverable
-                    style={{ width: 320 }}
-                    actions={[
-                      <Button
-                        type="primary"
-                        onClick={() => firstLessonMap[course._id] && navigate(`/student/lessons/${firstLessonMap[course._id]}`)}
-                        disabled={!firstLessonMap[course._id]}
-                        style={{ width: '100%' }}
-                      >
-                        Bắt đầu học
-                      </Button>
-                    ]}
-                    cover={
-                      <img
-                        alt="course-thumbnail"
-                        src={course.thumbnail}
-                        style={{ height: 200, objectFit: 'cover' }}
-                      />
-                    }
-                  >
-                    <h3>{course.title}</h3>
-                    <div>Thời lượng: {typeof course.duration === 'number' && !isNaN(course.duration) && course.duration > 0
-                      ? (course.duration >= 3600
-                        ? `${Math.floor(course.duration / 3600)} giờ ${Math.floor((course.duration % 3600) / 60)} phút`
-                        : `${Math.floor(course.duration / 60)} phút`)
-                      : '0 phút'}
-                    </div>
-                    <div>Số học viên: {course.studentsCount}</div>
-                    <Progress percent={percent} size="small" style={{ margin: '8px 0' }} />
-                  </Card>
-                </div>
-              );
-            })
-        )}
+        {enrollments
+          .filter(enrollment => enrollment.course && enrollment.course._id)
+          .map(enrollment => {
+            const course = enrollment.course;
+            const firstLessonId = firstLessonMap[course._id];
+            const percent = progresses[course._id] || 0;
+            return (
+              <div key={course._id}>
+                <Card
+                  hoverable
+                  style={{ width: 320 }}
+                  actions={[
+                    <Button
+                      type="primary"
+                      onClick={() => {
+                        if (firstLessonMap[course._id]) {
+                          localStorage.setItem('currentCourseId', course._id); // Lưu courseId cho LessonLearn
+                          navigate(`/student/lessons/${firstLessonMap[course._id]}`);
+                        }
+                      }}
+                      disabled={!firstLessonMap[course._id]}
+                      style={{ width: '100%' }}
+                    >
+                      Bắt đầu học
+                    </Button>
+                  ]}
+                  cover={
+                    <img
+                      alt="course-thumbnail"
+                      src={course.thumbnail}
+                      style={{ height: 200, objectFit: 'cover' }}
+                    />
+                  }
+                >
+                  <h3>{course.title}</h3>
+                  <div>Thời lượng: {typeof course.duration === 'number' && !isNaN(course.duration) && course.duration > 0
+                    ? (course.duration >= 3600
+                      ? `${Math.floor(course.duration / 3600)} giờ ${Math.floor((course.duration % 3600) / 60)} phút`
+                      : `${Math.floor(course.duration / 60)} phút`)
+                    : '0 phút'}
+                  </div>
+                  <div>Số học viên: {course.studentsCount}</div>
+                  <Progress percent={percent} size="small" style={{ margin: '8px 0' }} />
+                </Card>
+              </div>
+            );
+          })}
       </div>
     </div>
   );

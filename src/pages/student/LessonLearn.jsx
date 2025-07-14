@@ -8,6 +8,7 @@ import { useAuth } from '../../context/authContext';
 import { Rate, Form, Input, message, Typography as AntdTypography, Avatar, Spin as AntdSpin } from 'antd';
 import { getFeedbacksByCourse, createFeedback } from '../../services/feedbackService';
 import { UserOutlined, ClockCircleOutlined, PlayCircleOutlined } from '@ant-design/icons';
+import VideoPlayer from '../../components/VideoPlayer';
 
 const { Title, Text } = AntdTypography;
 const { Panel } = Collapse;
@@ -158,16 +159,8 @@ export default function LessonLearn() {
       {/* Video + nội dung */}
       <div style={{ flex: 2, padding: 32, background: '#fff' }}>
         <Card style={{ marginBottom: 24 }}>
-          {lesson.videoUrl && getVideoEmbedUrl(lesson.videoUrl) ? (
-            <iframe
-              width="100%"
-              height="400"
-              src={getVideoEmbedUrl(lesson.videoUrl)}
-              title={lesson.title}
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            ></iframe>
+          {lesson.videoUrl ? (
+            <VideoPlayer lesson={lesson} courseId={course?._id} />
           ) : (
             <div>Không có video cho bài học này.</div>
           )}
