@@ -3,13 +3,13 @@ import axios from 'axios';
 const API = process.env.REACT_APP_API_BASE_URL + '/courses';
 
 // Lấy danh sách tất cả các khóa học (public)
-export const getAllCourses = (search = '') =>
+export const getAllCourses = () =>
   axios.get(`${API}`, {
-    params: { search },
+    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
   });
 
 // Lấy chi tiết 1 khóa học theo ID (public)
-export const getCourseById = (courseId, token) =>
+export const getCourseById = (courseId, token) => 
   axios.get(`${API}/${courseId}`, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -64,5 +64,20 @@ export const uploadThumbnail = (token, file) => {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'multipart/form-data',
     },
-  });
+  }); 
 };
+
+export const getPendingCourses = () =>
+  axios.get(`${API}/pending`, {
+    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+  });
+
+export const approveCourse = (id) =>
+  axios.put(`${API}/${id}/approve`, {}, {
+    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+  });
+
+export const rejectCourse = (id) =>
+  axios.put(`${API}/${id}/reject`, {}, {
+    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+  });

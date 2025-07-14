@@ -1,7 +1,7 @@
 import { Button, Form, Input, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { login } from '../services/authService';
-import { useAuth } from '../context/authContext';
+import { login } from '../../services/authService';
+import { useAuth } from '../../context/authContext';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -13,7 +13,23 @@ export default function Login() {
       localStorage.setItem('token', res.data.token);
       setUser(res.data.user); // set context
       message.success('Login successful');
-      navigate('/');
+      // Xử lý redirect sau khi login
+      const redirect = localStorage.getItem("redirectAfterLogin");
+      if (redirect) {
+        localStorage.removeItem("redirectAfterLogin");
+        navigate(redirect);
+      } else {
+        // Nếu là student thì về trang home student
+        if (res.data.user.role === "student") {
+          navigate("/"); // hoặc navigate("/student") nếu bạn có route riêng
+        } else if (res.data.user.role === "teacher") {
+          navigate("/my-courses"); // hoặc route phù hợp cho teacher
+        } else if (res.data.user.role === "admin") {
+          navigate("/admin");
+        } else {
+          navigate("/"); // fallback
+        }
+      }
     } catch (err) {
       message.error(err.response?.data?.message || 'Login failed');
     }

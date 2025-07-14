@@ -54,7 +54,7 @@ export default function Navbar() {
           key: 'profile',
           icon: <UserOutlined />,
           label: 'Profile',
-          onClick: () => navigate('/'),
+          onClick: () => navigate('/profile'),
         },
         {
           key: 'setting',
