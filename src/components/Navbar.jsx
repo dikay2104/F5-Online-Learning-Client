@@ -10,7 +10,7 @@ export default function Navbar() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     setUser(null); // ✅ cập nhật lại context
-    // navigate('/login');
+    navigate('/guest/home');
   };
 
   const userMenu = (
