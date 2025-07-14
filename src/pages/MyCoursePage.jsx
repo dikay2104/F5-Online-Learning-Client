@@ -53,46 +53,50 @@ export default function MyCoursesPage() {
         {enrollments.length === 0 ? (
           <p>Bạn chưa tham gia khóa học nào.</p>
         ) : (
-          enrollments.map(enrollment => {
-            const course = enrollment.course;
-            const firstLessonId = firstLessonMap[course._id];
-            return (
-              <div key={course._id}>
-                <Card
-                  hoverable
-                  style={{ width: 320 }}
-                  actions={[
-                    <Button
-                      type="primary"
-                      onClick={() => {
-                        if (firstLessonId) {
-                          localStorage.setItem('currentCourseId', course._id);
-                          navigate(`/student/lessons/${firstLessonId}`);
-                        }
-                      }}
-                      disabled={!firstLessonId}
-                    >
-                      Bắt đầu học
-                    </Button>
-                  ]}
-                  cover={
-                    <img
-                      alt="course-thumbnail"
-                      src={course.thumbnail}
-                      style={{ height: 200, objectFit: 'cover' }}
-                    />
-                  }
-                >
-                  <h3>{course.title}</h3>
-                  <div>Thời lượng: {course.duration >= 3600
-                    ? `${Math.floor(course.duration / 3600)} giờ ${Math.floor((course.duration % 3600) / 60)} phút`
-                    : `${Math.floor(course.duration / 60)} phút`}
-                  </div>
-                  <div>Số học viên: {course.studentsCount}</div>
-                </Card>
-              </div>
-            );
-          })
+          enrollments
+            .filter(enrollment => enrollment.course && enrollment.course._id)
+            .map(enrollment => {
+              const course = enrollment.course;
+              const firstLessonId = firstLessonMap[course._id];
+              return (
+                <div key={course._id}>
+                  <Card
+                    hoverable
+                    style={{ width: 320 }}
+                    actions={[
+                      <Button
+                        type="primary"
+                        onClick={() => {
+                          if (firstLessonId) {
+                            localStorage.setItem('currentCourseId', course._id);
+                            navigate(`/student/lessons/${firstLessonId}`);
+                          }
+                        }}
+                        disabled={!firstLessonId}
+                      >
+                        Bắt đầu học
+                      </Button>
+                    ]}
+                    cover={
+                      <img
+                        alt="course-thumbnail"
+                        src={course.thumbnail}
+                        style={{ height: 200, objectFit: 'cover' }}
+                      />
+                    }
+                  >
+                    <h3>{course.title}</h3>
+                    <div>Thời lượng: {typeof course.duration === 'number' && !isNaN(course.duration) && course.duration > 0
+                      ? (course.duration >= 3600
+                        ? `${Math.floor(course.duration / 3600)} giờ ${Math.floor((course.duration % 3600) / 60)} phút`
+                        : `${Math.floor(course.duration / 60)} phút`)
+                      : '0 phút'}
+                    </div>
+                    <div>Số học viên: {course.studentsCount}</div>
+                  </Card>
+                </div>
+              );
+            })
         )}
       </div>
     </div>

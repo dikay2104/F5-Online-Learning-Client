@@ -3,7 +3,11 @@ import axios from 'axios';
 const API = process.env.REACT_APP_API_BASE_URL + '/lessons';
 
 export const getLessonsByCourse = (courseId) =>
-    axios.get(`${API}/course/${courseId}`);
+    axios.get(`${API}/course/${courseId}`, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+    });
 
 export const getLessonById = (lessonId) =>
     axios.get(`${API}/${lessonId}`);
@@ -40,4 +44,18 @@ export const deleteLesson = (token, lessonId) =>
 export const reorderLessons = (token, reorderList) =>
   axios.put(`${API}/reorder`, reorderList, {
     headers: { Authorization: `Bearer ${token}` }
+  });
+
+export const saveLessonProgress = (lessonId, data) =>
+  axios.post(`${API}/${lessonId}/progress`, data, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    },
+  });
+
+export const getProgressByCourse = (courseId) =>
+  axios.get(`${API}/course/${courseId}/progress`, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    },
   });

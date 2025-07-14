@@ -21,6 +21,7 @@ import StudentHome from './pages/student/Home';
 import StudentCourseDetail from './pages/student/CourseDetail';
 import PaymentCallback from './pages/PaymentCallback';
 import LessonLearn from './pages/student/LessonLearn';
+import Profile from './pages/Profile';
 import UploadForm from './pages/uploadForm';
 
 function PrivateRoute({ element }) {
@@ -62,6 +63,9 @@ export default function App() {
               <Route path="/student/courses/:courseId" element={<StudentCourseDetail />} />
               <Route path="/payment/callback" element={<PaymentCallback />} />
               <Route path="/student/lessons/:lessonId" element={<LessonLearn />} />
+
+              {/* Route cho user profile */}
+              <Route path="/profile" element={<PrivateRoute element={<Profile />} />} />
 
               {/* Route cho guest */}
               <Route path="/about" element={<AboutUs />} />
