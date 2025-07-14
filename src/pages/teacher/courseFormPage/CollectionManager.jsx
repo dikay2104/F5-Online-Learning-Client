@@ -1,11 +1,11 @@
-//courseFormPage/CollectionManager.jsx
-
-import { Collapse, Button, Modal, Form, Input, List, Select, Row, Col, Typography, Divider, Space } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined, ClockCircleOutlined } from '@ant-design/icons';
+// phần import đầu file
+import { Collapse, Button, Modal, Form, Input, List, Select, Row, Col, Typography, Divider, Space, Upload, message } from 'antd';
+import { EditOutlined, DeleteOutlined, PlusOutlined, ClockCircleOutlined, UploadOutlined } from '@ant-design/icons';
 import { ReactSortable } from 'react-sortablejs';
-import { useEffect } from 'react';
-const { Text } = Typography;
+import { useEffect, useState } from 'react';
+import { uploadVideo } from '../../../services/driveService'; // 👈 service upload
 
+const { Text } = Typography;
 const { Panel } = Collapse;
 
 export default function CollectionManager({
@@ -33,12 +33,33 @@ export default function CollectionManager({
   editingLessonId,
   onReorderLessons,
 }) {
-  const ungroupedLessons = lessons.filter(l => !l.collection);
+  const [canSubmitLesson, setCanSubmitLesson] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
+  const ungroupedLessons = lessons.filter(l => !l.collection);
   const groupedLessons = collections.map(collection => ({
     ...collection,
     lessons: lessons.filter(l => l.collection === collection._id),
   }));
+
+  const handleUploadDrive = async (file) => {
+    try {
+      setUploading(true);
+      const formData = new FormData();
+      formData.append('video', file);
+
+      const res = await uploadVideo(formData);
+      const url = res.data.link;
+
+      lessonForm.setFieldValue('videoUrl', url);
+      setCanSubmitLesson(true);
+      message.success('Đã upload video lên Google Drive');
+    } catch (err) {
+      message.error('Lỗi khi upload video');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   return (
     <>
@@ -186,15 +207,26 @@ export default function CollectionManager({
         title={editingLessonId ? 'Chỉnh sửa bài học' : 'Thêm bài học'}
         open={lessonModalVisible}
         confirmLoading={lessonLoading}
-        onCancel={onCancelLesson}
+        onCancel={() => {
+          setCanSubmitLesson(false);
+          onCancelLesson();
+        }}
         onOk={onConfirmLesson}
         okText={editingLessonId ? 'Lưu' : 'Thêm'}
         cancelText="Huỷ"
-        // okButtonProps={{
-        //   disabled: !lessonForm.isFieldsTouched() || lessonForm.getFieldsError().some(({ errors }) => errors.length > 0),
-        // }}
+        okButtonProps={{ disabled: !canSubmitLesson }}
+        forceRender
       >
-        <Form form={lessonForm} layout="vertical">
+        <Form
+          form={lessonForm}
+          layout="vertical"
+          onValuesChange={(changedValues, allValues) => {
+            const url = changedValues.videoUrl || allValues.videoUrl;
+            if (url && (url.includes('youtube.com') || url.includes('drive.google.com'))) {
+              setCanSubmitLesson(true);
+            }
+          }}
+        >
           <Form.Item name="collection" hidden rules={[{ required: false }]}>
             <Input />
           </Form.Item>
@@ -205,10 +237,7 @@ export default function CollectionManager({
           >
             <Input />
           </Form.Item>
-          <Form.Item
-            name="description"
-            label="Mô tả"
-          >
+          <Form.Item name="description" label="Mô tả">
             <Input />
           </Form.Item>
           <Form.Item
@@ -218,6 +247,19 @@ export default function CollectionManager({
           >
             <Input />
           </Form.Item>
+
+          <Upload
+            showUploadList={false}
+            beforeUpload={(file) => {
+              handleUploadDrive(file);
+              return false; // để không upload tự động
+            }}
+          >
+            <Button icon={<UploadOutlined />} loading={uploading}>
+              Tải video lên Google Drive
+            </Button>
+          </Upload>
+
           <Form.Item
             name="isPreviewable"
             label="Cho học thử?"

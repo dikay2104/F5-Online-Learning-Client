@@ -1,8 +1,11 @@
-import { Typography, Card, Row, Col, Carousel, Button, Divider } from 'antd';
+import { useEffect, useState } from 'react';
+import { Typography, Divider, Spin, Empty, Carousel, Button } from 'antd';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import React, { useRef } from 'react';
+import { getAllCourses } from '../../services/courseService';
+import CourseCard from '../../components/CourseCard';
 
-const { Title, Paragraph, Text } = Typography;
+const { Title } = Typography;
 
 const slides = [
   {
@@ -22,30 +25,49 @@ const slides = [
   },
 ];
 
-const news = [
-  {
-    title: 'Phỏng vấn sinh viên học IT',
-    content: '“Nhờ F5 Learning, mình đã có lộ trình học rõ ràng, được mentor hỗ trợ tận tình và tự tin apply thực tập chỉ sau 6 tháng!” – Minh, sinh viên năm 2.',
-    img: 'https://images.unsplash.com/photo-1513258496099-48168024aec0?auto=format&fit=crop&w=400&q=80',
-  },
-  {
-    title: 'Phỏng vấn người đi làm chuyển ngành IT',
-    content: '“Mình từng là kế toán, nhờ các khóa học thực chiến và cộng đồng hỗ trợ, mình đã chuyển sang làm lập trình viên backend tại công ty công nghệ lớn.” – Huyền, 27 tuổi.',
-    img: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80',
-  },
-  {
-    title: 'F5 Learning – Nền tảng học IT hiện đại',
-    content: 'F5 Learning cung cấp lộ trình học bài bản, mentor giàu kinh nghiệm, hệ thống bài tập thực tế và hỗ trợ 1-1 giúp bạn chinh phục ngành IT dễ dàng.',
-    img: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=400&q=80',
-  },
-];
-
-export default function AboutUs() {
+export default function GuestHome() {
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
   const carouselRef = useRef();
 
+  useEffect(() => {
+    getAllCourses()
+      .then(res => setCourses(res.data.data || res.data))
+      .catch(() => setCourses([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const freeCourses = courses.filter(c => c.price === 0);
+  const vipCourses = courses.filter(c => c.price > 0);
+
+  // Custom responsive grid
+  const renderCourseGrid = (courseList) => (
+    <div style={{
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: '32px',
+      justifyContent: 'flex-start',
+    }}>
+      {courseList.map(course => (
+        <div
+          key={course._id}
+          style={{
+            flex: '1 1 260px',
+            minWidth: 260,
+            maxWidth: 340,
+            boxSizing: 'border-box',
+            display: 'flex',
+          }}
+        >
+          <CourseCard course={course} role="guest" />
+        </div>
+      ))}
+    </div>
+  );
+
   return (
-    <div style={{ maxWidth: 1100, margin: '40px auto', padding: '24px' }}>
-      {/* Slide bar section (copied from guest/home) */}
+    <div style={{ maxWidth: 1400, margin: '0 auto', padding: '32px 16px' }}>
+      {/* Slide bar section */}
       <div style={{ maxWidth: 1100, margin: '0 auto 40px auto', position: 'relative' }}>
         {/* Custom Arrow Buttons */}
         <Button
@@ -122,26 +144,36 @@ export default function AboutUs() {
         </Carousel>
       </div>
 
-
-      {/* 3. News Section */}
-      <div>
-      <Divider orientation="left" orientationMargin={0} style={{ fontWeight: 600, fontSize: 18 }}>
+      {/* Khóa học miễn phí */}
+      <div style={{ marginBottom: 48 }}>
+        <Divider orientation="left" orientationMargin={0} style={{ fontWeight: 600, fontSize: 18 }}>
           Khóa học miễn phí
-        </Divider><Row gutter={[32, 32]} justify="center">
-          {news.map((item, idx) => (
-            <Col xs={24} sm={12} md={8} key={idx}>
-              <Card
-                hoverable
-                cover={<img src={item.img} alt={item.title} style={{ width: '100%', height: 180, objectFit: 'cover', borderTopLeftRadius: 12, borderTopRightRadius: 12 }} />}
-                style={{ borderRadius: 12, height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}
-                bodyStyle={{ flex: 1, display: 'flex', flexDirection: 'column', padding: 16 }}
-              >
-                <Title level={4} style={{ color: '#1677ff', minHeight: 48 }}>{item.title}</Title>
-                <Paragraph style={{ fontSize: 15, color: '#444', flex: 1 }}>{item.content}</Paragraph>
-              </Card>
-            </Col>
-          ))}
-        </Row>
+        </Divider>
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '40px 0' }}>
+            <Spin size="large" />
+          </div>
+        ) : freeCourses.length === 0 ? (
+          <Empty description="Chưa có khóa học miễn phí" style={{ margin: '32px 0' }} />
+        ) : (
+          renderCourseGrid(freeCourses)
+        )}
+      </div>
+
+      {/* Khóa học VIP/Pro */}
+      <div style={{ marginBottom: 48 }}>
+        <Divider orientation="left" orientationMargin={0} style={{ fontWeight: 600, fontSize: 18 }}>
+          Khóa học VIP/Pro
+        </Divider>
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '40px 0' }}>
+            <Spin size="large" />
+          </div>
+        ) : vipCourses.length === 0 ? (
+          <Empty description="Chưa có khóa học VIP/Pro" style={{ margin: '32px 0' }} />
+        ) : (
+          renderCourseGrid(vipCourses)
+        )}
       </div>
     </div>
   );
