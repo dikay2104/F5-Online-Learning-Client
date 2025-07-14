@@ -1,9 +1,17 @@
 import { useEffect, useState } from "react";
 import { Table, Button, Tag, message, Input, Select } from "antd";
 import { getAllUsers, banUser, unbanUser } from "../../services/userService";
+import axios from "axios";
 
 const { Search } = Input;
 const { Option } = Select;
+
+const API_URL = "/api/feedbacks";
+
+export const getFeedbacksByCourse = (courseId) =>
+  axios.get(`${API_URL}?course=${courseId}`, {
+    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+  });
 
 export default function ManageUsers() {
   const [users, setUsers] = useState([]);
