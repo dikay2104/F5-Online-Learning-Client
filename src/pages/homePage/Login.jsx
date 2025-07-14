@@ -21,7 +21,7 @@ export default function Login() {
       } else {
         // Nếu là student thì về trang home student
         if (res.data.user.role === "student") {
-          navigate("/"); // hoặc navigate("/student") nếu bạn có route riêng
+          navigate("/student/home");
         } else if (res.data.user.role === "teacher") {
           navigate("/my-courses"); // hoặc route phù hợp cho teacher
         } else if (res.data.user.role === "admin") {
