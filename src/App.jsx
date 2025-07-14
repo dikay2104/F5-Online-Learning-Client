@@ -23,6 +23,9 @@ import LessonLearn from './pages/student/LessonLearn';
 import Profile from './pages/Profile';
 import GuestHome from './pages/guest/Home';
 import ProgressPage from './pages/ProgressPage';
+import UploadForm from './pages/uploadForm';
+
+
 function PrivateRoute({ element }) {
   const { user, loading } = useAuth();
 
@@ -49,6 +52,8 @@ export default function App() {
               {/* <Route path="/" element={<Home />} /> */}
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+
+              <Route path="/uploadVideo" element={<UploadForm />} />
 
               {/* route cho admin */}
               <Route path="/admin/users" element={<ManageUsers />} />

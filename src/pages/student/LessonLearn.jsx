@@ -12,10 +12,22 @@ import { UserOutlined, ClockCircleOutlined, PlayCircleOutlined } from '@ant-desi
 const { Title, Text } = AntdTypography;
 const { Panel } = Collapse;
 
-function getYoutubeEmbedUrl(url) {
-  const match = url && url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([\w-]{11})/);
-  return match ? `https://www.youtube.com/embed/${match[1]}` : null;
+function getVideoEmbedUrl(url) {
+  // YouTube
+  const youtubeMatch = url?.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([\w-]{11})/);
+  if (youtubeMatch) {
+    return `https://www.youtube.com/embed/${youtubeMatch[1]}`;
+  }
+
+  // Google Drive
+  const driveMatch = url?.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)\//);
+  if (driveMatch) {
+    return `https://drive.google.com/file/d/${driveMatch[1]}/preview`;
+  }
+
+  return null;
 }
+
 
 export default function LessonLearn() {
   const { lessonId } = useParams();
@@ -133,11 +145,11 @@ export default function LessonLearn() {
       {/* Video + nội dung */}
       <div style={{ flex: 2, padding: 32, background: '#fff' }}>
         <Card style={{ marginBottom: 24 }}>
-          {lesson.videoUrl && getYoutubeEmbedUrl(lesson.videoUrl) ? (
+          {lesson.videoUrl && getVideoEmbedUrl(lesson.videoUrl) ? (
             <iframe
               width="100%"
               height="400"
-              src={getYoutubeEmbedUrl(lesson.videoUrl)}
+              src={getVideoEmbedUrl(lesson.videoUrl)}
               title={lesson.title}
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
