@@ -1,24 +1,8 @@
-import { Typography, Card, Row, Col, Carousel } from 'antd';
+import { Typography, Card, Row, Col, Carousel, Button, Divider } from 'antd';
+import { LeftOutlined, RightOutlined } from '@ant-design/icons';
+import React, { useRef } from 'react';
 
 const { Title, Paragraph, Text } = Typography;
-
-const news = [
-  {
-    title: 'Phỏng vấn sinh viên học IT',
-    content: '“Nhờ F5 Learning, mình đã có lộ trình học rõ ràng, được mentor hỗ trợ tận tình và tự tin apply thực tập chỉ sau 6 tháng!” – Minh, sinh viên năm 2.',
-    img: 'https://images.unsplash.com/photo-1513258496099-48168024aec0?auto=format&fit=crop&w=400&q=80',
-  },
-  {
-    title: 'Phỏng vấn người đi làm chuyển ngành IT',
-    content: '“Mình từng là kế toán, nhờ các khóa học thực chiến và cộng đồng hỗ trợ, mình đã chuyển sang làm lập trình viên backend tại công ty công nghệ lớn.” – Huyền, 27 tuổi.',
-    img: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80',
-  },
-  {
-    title: 'F5 Learning – Nền tảng học IT hiện đại',
-    content: 'F5 Learning cung cấp lộ trình học bài bản, mentor giàu kinh nghiệm, hệ thống bài tập thực tế và hỗ trợ 1-1 giúp bạn chinh phục ngành IT dễ dàng.',
-    img: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=400&q=80',
-  },
-];
 
 const slides = [
   {
@@ -38,32 +22,99 @@ const slides = [
   },
 ];
 
+const news = [
+  {
+    title: 'Phỏng vấn sinh viên học IT',
+    content: '“Nhờ F5 Learning, mình đã có lộ trình học rõ ràng, được mentor hỗ trợ tận tình và tự tin apply thực tập chỉ sau 6 tháng!” – Minh, sinh viên năm 2.',
+    img: 'https://images.unsplash.com/photo-1513258496099-48168024aec0?auto=format&fit=crop&w=400&q=80',
+  },
+  {
+    title: 'Phỏng vấn người đi làm chuyển ngành IT',
+    content: '“Mình từng là kế toán, nhờ các khóa học thực chiến và cộng đồng hỗ trợ, mình đã chuyển sang làm lập trình viên backend tại công ty công nghệ lớn.” – Huyền, 27 tuổi.',
+    img: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80',
+  },
+  {
+    title: 'F5 Learning – Nền tảng học IT hiện đại',
+    content: 'F5 Learning cung cấp lộ trình học bài bản, mentor giàu kinh nghiệm, hệ thống bài tập thực tế và hỗ trợ 1-1 giúp bạn chinh phục ngành IT dễ dàng.',
+    img: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=400&q=80',
+  },
+];
+
 export default function AboutUs() {
+  const carouselRef = useRef();
+
   return (
     <div style={{ maxWidth: 1100, margin: '40px auto', padding: '24px' }}>
-      {/* 1. Carousel Section */}
-      <div style={{ marginBottom: 48 }}>
-        <Title level={1} style={{ color: '#1677ff', textAlign: 'center', marginBottom: 24 }}>Khám phá F5 Online Learning</Title>
-        <Carousel autoplay dots arrows style={{ margin: '0 auto', maxWidth: 800 }}>
+      {/* Slide bar section (copied from guest/home) */}
+      <div style={{ maxWidth: 1100, margin: '0 auto 40px auto', position: 'relative' }}>
+        {/* Custom Arrow Buttons */}
+        <Button
+          shape="circle"
+          icon={<LeftOutlined />}
+          size="large"
+          style={{ position: 'absolute', top: '50%', left: -24, zIndex: 2, transform: 'translateY(-50%)', boxShadow: '0 2px 8px rgba(0,0,0,0.12)' }}
+          onClick={() => carouselRef.current.prev()}
+        />
+        <Button
+          shape="circle"
+          icon={<RightOutlined />}
+          size="large"
+          style={{ position: 'absolute', top: '50%', right: -24, zIndex: 2, transform: 'translateY(-50%)', boxShadow: '0 2px 8px rgba(0,0,0,0.12)' }}
+          onClick={() => carouselRef.current.next()}
+        />
+        <Carousel
+          ref={carouselRef}
+          autoplay
+          dots
+          style={{ margin: '0 auto', maxWidth: 1100, width: '100%' }}
+        >
           {slides.map((slide, idx) => (
             <div key={idx}>
               <div style={{
+                position: 'relative',
+                background: '#f5f7fa',
+                borderRadius: 20,
+                minHeight: 340,
+                overflow: 'hidden',
+                padding: 0,
+                maxWidth: 1100,
+                width: '100%',
+                margin: '0 auto',
+                border: '1.5px solid #e0e0e0',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                background: '#f5f7fa',
-                borderRadius: 16,
-                minHeight: 260,
-                overflow: 'hidden',
-                padding: 24,
-                gap: 32,
-                maxWidth: 800,
-                margin: '0 auto',
               }}>
-                <img src={slide.img} alt={slide.title} style={{ width: 320, height: 200, objectFit: 'cover', borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }} />
-                <div>
-                  <Title level={3} style={{ color: '#1677ff', marginBottom: 8 }}>{slide.title}</Title>
-                  <Text style={{ fontSize: 18 }}>{slide.desc}</Text>
+                <img 
+                  src={slide.img} 
+                  alt={slide.title} 
+                  style={{ 
+                    width: '100%', 
+                    height: 340, 
+                    objectFit: 'cover', 
+                    borderRadius: 20, 
+                    display: 'block',
+                  }} 
+                />
+                {/* Caption overlay */}
+                <div style={{
+                  position: 'absolute',
+                  left: 0,
+                  bottom: 0,
+                  width: '100%',
+                  background: 'linear-gradient(90deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.15) 80%, rgba(0,0,0,0) 100%)',
+                  color: '#fff',
+                  padding: '20px 32px 18px 32px',
+                  borderBottomLeftRadius: 20,
+                  borderBottomRightRadius: 20,
+                  boxSizing: 'border-box',
+                  zIndex: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 4,
+                }}>
+                  <div style={{ fontSize: 22, fontWeight: 600, marginBottom: 2 }}>{slide.title}</div>
+                  <div style={{ fontSize: 16, fontWeight: 400 }}>{slide.desc}</div>
                 </div>
               </div>
             </div>
@@ -71,23 +122,12 @@ export default function AboutUs() {
         </Carousel>
       </div>
 
-      {/* 2. Description Section */}
-      <div style={{ marginBottom: 48, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Title level={1} style={{ color: '#1677ff', textAlign: 'center', marginBottom: 24 }}>Về F5 Online Learning</Title>
-        <Card style={{ borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', maxWidth: 700, width: '100%', textAlign: 'center', background: '#fafdff' }}>
-          <Paragraph style={{ fontSize: 18, marginBottom: 16 }}>
-            F5 Online Learning là nền tảng học trực tuyến hiện đại, giúp kết nối học viên và giảng viên trong lĩnh vực lập trình và công nghệ. Chúng tôi mang đến lộ trình học rõ ràng, nội dung chất lượng và trải nghiệm học tập thân thiện, phù hợp cho cả người mới bắt đầu và lập trình viên muốn nâng cao kỹ năng.
-          </Paragraph>
-          <Paragraph style={{ fontSize: 16, color: '#555' }}>
-            Sứ mệnh của chúng tôi là giúp mọi người tiếp cận tri thức công nghệ một cách dễ dàng, hiệu quả và truyền cảm hứng sáng tạo.
-          </Paragraph>
-        </Card>
-      </div>
 
       {/* 3. News Section */}
       <div>
-        <Title level={1} style={{ color: '#1677ff', textAlign: 'center', marginBottom: 32 }}>Câu chuyện học viên & F5 Learning</Title>
-        <Row gutter={[32, 32]} justify="center">
+      <Divider orientation="left" orientationMargin={0} style={{ fontWeight: 600, fontSize: 18 }}>
+          Khóa học miễn phí
+        </Divider><Row gutter={[32, 32]} justify="center">
           {news.map((item, idx) => (
             <Col xs={24} sm={12} md={8} key={idx}>
               <Card
