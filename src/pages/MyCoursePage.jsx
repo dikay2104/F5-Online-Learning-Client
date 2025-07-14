@@ -6,7 +6,7 @@ import { getMyEnrollments } from '../services/enrollmentService';
 import Loading from '../components/Loading';
 import { Card, Button, Progress, List, Typography, Avatar } from 'antd';
 import { getLessonsByCourse } from '../services/lessonService';
-import { getProgressByCourse } from '../services/lessonService';
+import { getProgressByCourse } from '../services/progressService';
 import { UserOutlined } from '@ant-design/icons';
 
 const { Title } = Typography;
@@ -19,34 +19,62 @@ export default function MyCoursesPage() {
   const [firstLessonMap, setFirstLessonMap] = useState({});
   // Thêm state lưu progress cho từng course
   const [progresses, setProgresses] = useState({}); // { courseId: % }
-
+  const [lessonCounts, setLessonCounts] = useState({}); // { courseId: số bài học thực tế }
 
   useEffect(() => {
     if (user?.role === 'student') {
       getMyEnrollments()
         .then(res => {
           setEnrollments(res.data.data || []);
-          setLoading(false);
         })
-        .catch(() => setLoading(false));
+        .catch(() => {})
+        .finally(() => setLoading(false));
     }
   }, [user]);
 
+  // Fetch bài học đầu tiên cho từng khóa học song song
   useEffect(() => {
     async function fetchFirstLessons() {
-      const map = {};
-      for (const enrollment of enrollments) {
+      const promises = enrollments.map(async (enrollment) => {
         const course = enrollment.course;
         try {
           const res = await getLessonsByCourse(course._id);
           if (res.data.data && res.data.data.length > 0) {
-            map[course._id] = res.data.data[0]._id;
+            return [course._id, res.data.data[0]._id];
           }
         } catch {}
-      }
+        return [course._id, undefined];
+      });
+      const results = await Promise.all(promises);
+      const map = {};
+      results.forEach(([courseId, lessonId]) => {
+        if (lessonId) map[courseId] = lessonId;
+      });
       setFirstLessonMap(map);
     }
     if (enrollments.length > 0) fetchFirstLessons();
+  }, [enrollments]);
+
+  // Fetch số lượng bài học thực tế cho từng khóa học song song
+  useEffect(() => {
+    async function fetchLessonCounts() {
+      const promises = enrollments.map(async (enrollment) => {
+        const course = enrollment.course;
+        try {
+          const res = await getLessonsByCourse(course._id);
+          return [course._id, res.data.data.length];
+        } catch {
+          return [course._id, 0];
+        }
+      });
+      const results = await Promise.all(promises);
+      const map = {};
+      results.forEach(([courseId, count]) => {
+        map[courseId] = count;
+      });
+      setLessonCounts(map);
+    }
+    if (enrollments.length > 0) fetchLessonCounts();
   }, [enrollments]);
 
   // Khi load danh sách khóa học, chỉ lấy progress cho từng course
@@ -58,14 +86,14 @@ export default function MyCoursesPage() {
           const progressesArr = res.data.data || [];
           // Số bài học đã hoàn thành (giả sử watchedSeconds >= 80% videoDuration)
           const completed = progressesArr.filter(p => p.videoDuration && p.watchedSeconds / p.videoDuration >= 0.8).length;
-          // Tổng số bài học
-          const total = course.lessons?.length || course.duration || 1;
+          // Tổng số bài học thực tế
+          const total = lessonCounts[course._id] || 1;
           const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
           setProgresses(prev => ({ ...prev, [course._id]: percent }));
         })
         .catch(() => setProgresses(prev => ({ ...prev, [course._id]: 0 })));
     });
-  }, [enrollments]);
+  }, [enrollments, lessonCounts]);
 
   if (user?.role === 'teacher') return <TeacherCoursePage />;
   if (user?.role !== 'student') return <Navigate to="/" />;
@@ -92,13 +120,9 @@ export default function MyCoursesPage() {
                     actions={[
                       <Button
                         type="primary"
-                        onClick={() => {
-                          if (firstLessonId) {
-                            localStorage.setItem('currentCourseId', course._id);
-                            navigate(`/student/lessons/${firstLessonId}`);
-                          }
-                        }}
-                        disabled={!firstLessonId}
+                        onClick={() => firstLessonMap[course._id] && navigate(`/student/lessons/${firstLessonMap[course._id]}`)}
+                        disabled={!firstLessonMap[course._id]}
+                        style={{ width: '100%' }}
                       >
                         Bắt đầu học
                       </Button>

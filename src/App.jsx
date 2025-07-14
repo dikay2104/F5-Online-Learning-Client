@@ -22,6 +22,7 @@ import StudentCourseDetail from './pages/student/CourseDetail';
 import PaymentCallback from './pages/PaymentCallback';
 import LessonLearn from './pages/student/LessonLearn';
 import Profile from './pages/Profile';
+import ProgressPage from './pages/ProgressPage';
 
 function PrivateRoute({ element }) {
   const { user, loading } = useAuth();
@@ -63,6 +64,9 @@ export default function App() {
 
               {/* Route cho user profile */}
               <Route path="/profile" element={<PrivateRoute element={<Profile />} />} />
+              
+              {/* Route cho progress */}
+              <Route path="/progress" element={<PrivateRoute element={<ProgressPage />} />} />
 
               {/* Route cho guest */}
               <Route path="/about" element={<AboutUs />} />
