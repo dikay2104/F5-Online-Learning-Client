@@ -158,9 +158,12 @@ export default function StudentCourseDetail() {
               <Text strong>Giá:</Text> {course.price === 0 ? 'Miễn phí' : `${course.price?.toLocaleString()}đ`}
             </div>
             <div style={{ margin: '16px 0' }}>
-              <Tooltip title="Tiến độ học của bạn">
-                <Progress percent={progress} size="small" style={{ width: 220 }} />
-              </Tooltip>
+              {/* Chỉ hiện thanh tiến độ nếu đã tham gia khóa học */}
+              {isEnrolled && (
+                <Tooltip title="Tiến độ học của bạn">
+                  <Progress percent={progress} size="small" style={{ width: 220 }} />
+                </Tooltip>
+              )}
             </div>
             <div style={{ marginTop: 20 }}>
               {!isEnrolled ? (
@@ -180,6 +183,7 @@ export default function StudentCourseDetail() {
             borderRadius: 16,
             boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
             padding: 24,
+            marginBottom: 32,
           }}
         >
           <Title level={4}>Nội dung khóa học</Title>
