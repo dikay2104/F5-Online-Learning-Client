@@ -44,7 +44,6 @@ export default function Sidebar() {
   ];
 
   const adminItems = [
-    commonHomeItem,
     { key: '/admin/dashboard', icon: <AppstoreOutlined style={{ fontSize: 20 }} />, label: 'Dashboard' },
     { key: '/admin/users', icon: <UsergroupAddOutlined style={{ fontSize: 20 }} />, label: 'Manage Users' },
     { key: '/admin/courses', icon: <BookOutlined style={{ fontSize: 20 }} />, label: 'Manage Courses' },
