@@ -3,7 +3,7 @@ import { Collapse, Button, Modal, Form, Input, List, Select, Row, Col, Typograph
 import { EditOutlined, DeleteOutlined, PlusOutlined, ClockCircleOutlined, UploadOutlined } from '@ant-design/icons';
 import { ReactSortable } from 'react-sortablejs';
 import { useEffect, useState } from 'react';
-import { uploadVideo } from '../../../services/driveService'; // 👈 service upload
+import { uploadVideo } from '../../../services/lessonService';
 
 const { Text } = Typography;
 const { Panel } = Collapse;
@@ -42,24 +42,25 @@ export default function CollectionManager({
     lessons: lessons.filter(l => l.collection === collection._id),
   }));
 
-  const handleUploadDrive = async (file) => {
+  const handleUploadVideo = async (file) => {
     try {
       setUploading(true);
-      const formData = new FormData();
-      formData.append('video', file);
 
-      const res = await uploadVideo(formData);
-      const url = res.data.link;
+      const token = localStorage.getItem("token"); // nếu bạn dùng token từ local
+      const res = await uploadVideo(token, file);
+      const url = res.data.url;
 
       lessonForm.setFieldValue('videoUrl', url);
       setCanSubmitLesson(true);
-      message.success('Đã upload video lên Google Drive');
+      message.success('Đã upload video lên Cloudinary');
     } catch (err) {
+      console.error(err);
       message.error('Lỗi khi upload video');
     } finally {
       setUploading(false);
     }
   };
+
 
   return (
     <>
@@ -222,7 +223,7 @@ export default function CollectionManager({
           layout="vertical"
           onValuesChange={(changedValues, allValues) => {
             const url = changedValues.videoUrl || allValues.videoUrl;
-            if (url && (url.includes('youtube.com') || url.includes('drive.google.com'))) {
+            if (url && (url.includes('youtube.com') || url.includes('res.cloudinary.com'))) {
               setCanSubmitLesson(true);
             }
           }}
@@ -251,12 +252,12 @@ export default function CollectionManager({
           <Upload
             showUploadList={false}
             beforeUpload={(file) => {
-              handleUploadDrive(file);
+              handleUploadVideo(file);
               return false; // để không upload tự động
             }}
           >
             <Button icon={<UploadOutlined />} loading={uploading}>
-              Tải video lên Google Drive
+              Tải video lên
             </Button>
           </Upload>
 
