@@ -4,12 +4,15 @@ import { getCourseById } from "../../services/courseService";
 import { enrollCourse, createPayment, getMyEnrollments } from "../../services/enrollmentService";
 import { useAuth } from "../../context/authContext";
 import Loading from "../../components/Loading";
-import { Button, message, List, Tag, Card, Avatar, Typography, Row, Col, Divider, Progress, Modal, Tooltip, Rate } from "antd";
-import { UserOutlined, PlayCircleOutlined, VideoCameraOutlined, StarFilled } from "@ant-design/icons";
+import { Button, message, List, Tag, Card, Avatar, Typography, Row, Col, Divider, Progress, Modal, Tooltip, Rate, Collapse, Space } from "antd";
+import { UserOutlined, PlayCircleOutlined, VideoCameraOutlined, StarFilled, ClockCircleOutlined } from "@ant-design/icons";
 import { getFeedbacksByCourse, createFeedback } from "../../services/feedbackService";
+import { getCollectionsByCourse } from "../../services/collectionService";
+import { getLessonsByCourse } from "../../services/lessonService";
 import { Form, Input } from "antd";
 
 const { Title, Text } = Typography;
+const { Panel } = Collapse;
 
 export default function StudentCourseDetail() {
   const { courseId } = useParams();
@@ -25,6 +28,14 @@ export default function StudentCourseDetail() {
   const [feedbackLoading, setFeedbackLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [form] = Form.useForm();
+  const [collections, setCollections] = useState([]);
+  const [lessons, setLessons] = useState([]);
+
+  useEffect(() => {
+    if (user?.role === 'admin') {
+      navigate(`/courses/${courseId}`);
+    }
+  }, [user, courseId, navigate]);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -36,6 +47,20 @@ export default function StudentCourseDetail() {
       .catch(() => {
         setLoading(false);
       });
+
+    // Lấy collections và lessons
+    getCollectionsByCourse(courseId)
+      .then(res => {
+        setCollections(res.data.data || []);
+      })
+      .catch(() => setCollections([]));
+
+    getLessonsByCourse(courseId)
+      .then(res => {
+        setLessons(res.data.data || []);
+      })
+      .catch(() => setLessons([]));
+
     // Kiểm tra enrollment và progress
     if (user) {
       getMyEnrollments().then(res => {
@@ -118,6 +143,13 @@ export default function StudentCourseDetail() {
     }
   };
 
+  // Nhóm lessons theo collection
+  const ungroupedLessons = lessons.filter(l => !l.collection);
+  const groupedLessons = collections.map(collection => ({
+    ...collection,
+    lessons: lessons.filter(l => l.collection === collection._id).sort((a, b) => a.order - b.order),
+  }));
+
   if (loading) return <Loading />;
   if (!course) return <p>Không tìm thấy khóa học</p>;
 
@@ -166,13 +198,15 @@ export default function StudentCourseDetail() {
               )}
             </div>
             <div style={{ marginTop: 20 }}>
-              {!isEnrolled ? (
+              
+              {/* Ẩn nút tham gia/thanh toán nếu là admin */}
+              {user?.role !== 'admin' && (!isEnrolled ? (
                 <Button type="primary" size="large" shape="round" onClick={handleJoin}>
                   {course.price === 0 ? "Tham gia học" : "Thanh toán"}
                 </Button>
               ) : (
                 <Tag color="success" style={{ fontSize: 16, padding: '4px 16px' }}>Đã tham gia</Tag>
-              )}
+              ))}
             </div>
           </div>
         </Card>
@@ -188,34 +222,103 @@ export default function StudentCourseDetail() {
         >
           <Title level={4}>Nội dung khóa học</Title>
           <Divider />
-          <List
-            itemLayout="horizontal"
-            dataSource={course.lessons || []}
-            locale={{ emptyText: "Chưa có bài học nào" }}
-            renderItem={lesson => (
-              <List.Item
-                style={{
-                  borderRadius: 8,
-                  marginBottom: 8,
-                  background: '#fafbfc',
-                  cursor: isEnrolled ? 'pointer' : 'not-allowed',
-                  transition: 'background 0.2s',
-                  alignItems: 'center',
-                  boxShadow: selectedLesson && selectedLesson._id === lesson._id ? '0 0 0 2px #1890ff' : undefined,
-                  border: selectedLesson && selectedLesson._id === lesson._id ? '1px solid #1890ff' : '1px solid #f0f0f0',
-                }}
-                onClick={() => handleLessonClick(lesson)}
-                onMouseEnter={() => isEnrolled && setSelectedLesson(lesson)}
-                onMouseLeave={() => isEnrolled && setSelectedLesson(null)}
+          
+          <Collapse accordion>
+            {/* Collections */}
+            {groupedLessons.map((collection) => (
+              <Panel
+                key={collection._id}
+                header={
+                  <Space size="small">
+                    <Text strong>{collection.title}</Text>
+                    {collection.duration != null && (
+                      <Text type="secondary" style={{ fontSize: 12 }}>
+                        <ClockCircleOutlined style={{ marginRight: 4 }} />
+                        {collection.duration} phút
+                      </Text>
+                    )}
+                  </Space>
+                }
               >
-                <List.Item.Meta
-                  avatar={<PlayCircleOutlined style={{ fontSize: 24, color: '#1890ff' }} />}
-                  title={<Text strong>{lesson.title}</Text>}
-                  description={<Text type="secondary">{lesson.videoDuration ? Math.floor(lesson.videoDuration / 60) : 0} phút</Text>}
+                <List
+                  dataSource={collection.lessons}
+                  bordered
+                  locale={{ emptyText: "Chưa có bài học nào trong collection này" }}
+                  renderItem={(lesson) => (
+                    <List.Item
+                      style={{
+                        borderRadius: 8,
+                        marginBottom: 8,
+                        background: '#fafbfc',
+                        cursor: isEnrolled ? 'pointer' : 'not-allowed',
+                        transition: 'background 0.2s',
+                        alignItems: 'center',
+                        boxShadow: selectedLesson && selectedLesson._id === lesson._id ? '0 0 0 2px #1890ff' : undefined,
+                        border: selectedLesson && selectedLesson._id === lesson._id ? '1px solid #1890ff' : '1px solid #f0f0f0',
+                      }}
+                      onClick={() => handleLessonClick(lesson)}
+                      onMouseEnter={() => isEnrolled && setSelectedLesson(lesson)}
+                      onMouseLeave={() => isEnrolled && setSelectedLesson(null)}
+                    >
+                      <List.Item.Meta
+                        avatar={<PlayCircleOutlined style={{ fontSize: 24, color: '#1890ff' }} />}
+                        title={<Text strong>{lesson.title}</Text>}
+                        description={
+                          <Space size="small" wrap>
+                            <Text type="secondary">{lesson.videoDuration ? Math.floor(lesson.videoDuration / 60) : 0} phút</Text>
+                            {lesson.isPreviewable && (
+                              <Text type="success" style={{ fontSize: 12 }}>[Học thử]</Text>
+                            )}
+                          </Space>
+                        }
+                      />
+                    </List.Item>
+                  )}
                 />
-              </List.Item>
+              </Panel>
+            ))}
+
+            {/* Ungrouped Lessons */}
+            {ungroupedLessons.length > 0 && (
+              <Panel key="ungrouped" header="Bài học chưa có Collection">
+                <List
+                  dataSource={ungroupedLessons}
+                  bordered
+                  locale={{ emptyText: "Chưa có bài học nào" }}
+                  renderItem={(lesson) => (
+                    <List.Item
+                      style={{
+                        borderRadius: 8,
+                        marginBottom: 8,
+                        background: '#fafbfc',
+                        cursor: isEnrolled ? 'pointer' : 'not-allowed',
+                        transition: 'background 0.2s',
+                        alignItems: 'center',
+                        boxShadow: selectedLesson && selectedLesson._id === lesson._id ? '0 0 0 2px #1890ff' : undefined,
+                        border: selectedLesson && selectedLesson._id === lesson._id ? '1px solid #1890ff' : '1px solid #f0f0f0',
+                      }}
+                      onClick={() => handleLessonClick(lesson)}
+                      onMouseEnter={() => isEnrolled && setSelectedLesson(lesson)}
+                      onMouseLeave={() => isEnrolled && setSelectedLesson(null)}
+                    >
+                      <List.Item.Meta
+                        avatar={<PlayCircleOutlined style={{ fontSize: 24, color: '#1890ff' }} />}
+                        title={<Text strong>{lesson.title}</Text>}
+                        description={
+                          <Space size="small" wrap>
+                            <Text type="secondary">{lesson.videoDuration ? Math.floor(lesson.videoDuration / 60) : 0} phút</Text>
+                            {lesson.isPreviewable && (
+                              <Text type="success" style={{ fontSize: 12 }}>[Học thử]</Text>
+                            )}
+                          </Space>
+                        }
+                      />
+                    </List.Item>
+                  )}
+                />
+              </Panel>
             )}
-          />
+          </Collapse>
         </Card>
 
         {/* Đánh giá khóa học */}
@@ -271,7 +374,7 @@ export default function StudentCourseDetail() {
           width={800}
           title={selectedLesson ? selectedLesson.title : ""}
         >
-          {selectedLesson && (
+          {selectedLesson && user?.role !== 'admin' && (
             <div style={{ textAlign: 'center' }}>
               <iframe
                 width="720"

@@ -17,7 +17,7 @@ export default function CourseCardStudent({ course, onView, isEnrolled }) {
         <img
           alt="course-thumbnail"
           src={thumbnail || thumbnailFallback}
-          style={{ height: 200, objectFit: 'cover' }}
+          style={{ width: '100%', height: 200, objectFit: 'cover', display: 'block', borderTopLeftRadius: 12, borderTopRightRadius: 12 }}
         />
       }
       actions={[
@@ -27,6 +27,25 @@ export default function CourseCardStudent({ course, onView, isEnrolled }) {
           <Button type="primary" onClick={onView}>Xem chi tiết</Button>
         )
       ]}
+      style={{
+        minWidth: 260,
+        maxWidth: 340,
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        borderRadius: 12,
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        transition: 'all 0.3s ease',
+        overflow: 'hidden',
+      }}
+      bodyStyle={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        padding: '16px',
+        height: '100%'
+      }}
     >
       <Meta
         avatar={<Avatar icon={<UserOutlined />} src={teacher?.avatar} />}

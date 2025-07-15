@@ -28,7 +28,7 @@ export default function Sidebar() {
   const profileItem = { key: '/profile', icon: <SettingOutlined />, label: 'Profile' };
 
   const studentItems = [
-    commonHomeItem,
+    { key: '/student/home', icon: <AppstoreOutlined />, label: 'Home' },
     { key: '/my-courses', icon: <BookOutlined />, label: 'My Courses' },
     { key: '/progress', icon: <LineChartOutlined />, label: 'Progress' },
     { key: '/lessons', icon: <PlayCircleOutlined />, label: 'Lessons' },
@@ -44,7 +44,6 @@ export default function Sidebar() {
   ];
 
   const adminItems = [
-    commonHomeItem,
     { key: '/admin/dashboard', icon: <AppstoreOutlined style={{ fontSize: 20 }} />, label: 'Dashboard' },
     { key: '/admin/users', icon: <UsergroupAddOutlined style={{ fontSize: 20 }} />, label: 'Manage Users' },
     { key: '/admin/courses', icon: <BookOutlined style={{ fontSize: 20 }} />, label: 'Manage Courses' },
@@ -53,7 +52,7 @@ export default function Sidebar() {
   ];
 
   const guestItems = [
-    commonHomeItem,
+    { key: '/guest/home', icon: <AppstoreOutlined />, label: 'Home' },
     { key: '/roadmap-fe', icon: <CodeOutlined />, label: 'Lộ trình Frontend' },
     { key: '/roadmap-be', icon: <DatabaseOutlined />, label: 'Lộ trình Backend' },
     commonAboutItem,
