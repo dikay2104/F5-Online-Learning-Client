@@ -3,9 +3,7 @@ import { Typography, Divider, Spin, Empty, Carousel, Button, Input } from 'antd'
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import React, { useRef } from 'react';
 import { getAllCourses } from '../../services/courseService';
-import CourseCardStudent from '../../components/CourseCardStudent';
-import { useAuth } from '../../context/authContext';
-import { useNavigate } from 'react-router-dom';
+import CourseCard from '../../components/CourseCard';
 
 const { Title } = Typography;
 
@@ -30,10 +28,8 @@ const slides = [
 export default function GuestHome() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const carouselRef = useRef();
-  const { user } = useAuth();
-  const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState("");
+  const carouselRef = useRef();
 
   useEffect(() => {
     getAllCourses()
@@ -42,7 +38,6 @@ export default function GuestHome() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Lọc theo search
   const filteredCourses = courses.filter(course => {
     const keyword = searchValue.trim().toLowerCase();
     if (!keyword) return true;
@@ -54,28 +49,30 @@ export default function GuestHome() {
   const freeCourses = filteredCourses.filter((c) => c.price === 0);
   const vipCourses = filteredCourses.filter((c) => c.price > 0);
 
-  // Custom responsive grid: mỗi hàng tối đa 4 card, giống student/home
+  // Custom responsive grid
   const renderCourseGrid = (courseList) => (
     <div
       style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(4, minmax(240px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
         gap: '32px',
         justifyContent: 'center',
+        width: '100%',
+        margin: '0 auto',
       }}
     >
       {courseList.map(course => (
-        <div key={course._id} style={{ display: 'flex' }}>
-          <CourseCardStudent
-            course={course}
-            onView={() => {
-              if (!user) {
-                navigate('/login');
-              } else {
-                navigate(`/student/courses/${course._id}`);
-              }
-            }}
-          />
+        <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(260px,  300px))',
+          gap: '32px',
+          justifyContent: 'center',
+          width: '100%',
+          margin: '0 auto',
+        }}
+      >
+          <CourseCard course={course} role="guest" />
         </div>
       ))}
     </div>
@@ -83,27 +80,29 @@ export default function GuestHome() {
 
   return (
     <div style={{ maxWidth: 1400, margin: '0 auto', padding: '32px 16px' }}>
-      {/* Search bar */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 24 }}>
-        <div style={{ maxWidth: 400, width: '100%' }}>
-          <Input.Search
-            placeholder="Tìm kiếm khoá học..."
-            allowClear
-            enterButton
-            value={searchValue}
-            onChange={e => setSearchValue(e.target.value)}
-            onSearch={v => setSearchValue(v)}
-          />
-        </div>
-      </div>
       {/* Slide bar section */}
-      <div style={{ maxWidth: 1400, margin: '0 auto', padding: '32px 16px', position: 'relative' }}>
+      <div style={{ width: '100%', margin: '0 auto', padding: '32px 0', position: 'relative' }}>
         {/* Custom Arrow Buttons */}
         <Button
           shape="circle"
           icon={<LeftOutlined />}
           size="large"
-          style={{ position: 'absolute', top: '50%', left: -24, zIndex: 2, transform: 'translateY(-50%)', boxShadow: '0 2px 8px rgba(0,0,0,0.12)' }}
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: -18,
+            zIndex: 10,
+            transform: 'translateY(-50%)',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+            background: '#fff',
+            border: '1.5px solid #e0e0e0',
+            borderRadius: 20,
+            width: 40,
+            height: 40,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
           onClick={() => carouselRef.current.prev()}
         />
         <Button
@@ -117,7 +116,7 @@ export default function GuestHome() {
           ref={carouselRef}
           autoplay
           dots
-          style={{ margin: '0 auto', maxWidth: 1400, width: '100%' }}
+          style={{ margin: '0 auto', maxWidth: 1100, width: '100%' }}
         >
           {slides.map((slide, idx) => (
             <div key={idx}>
@@ -128,7 +127,7 @@ export default function GuestHome() {
                 minHeight: 340,
                 overflow: 'hidden',
                 padding: 0,
-                maxWidth: 1400,
+                maxWidth: 1100,
                 width: '100%',
                 margin: '0 auto',
                 border: '1.5px solid #e0e0e0',
@@ -145,7 +144,6 @@ export default function GuestHome() {
                     objectFit: 'cover', 
                     borderRadius: 20, 
                     display: 'block',
-                    maxWidth: 1400,
                   }} 
                 />
                 {/* Caption overlay */}
@@ -172,6 +170,18 @@ export default function GuestHome() {
             </div>
           ))}
         </Carousel>
+      </div>
+      {/* Search bar dưới carousel */}
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 32 }}>
+        <Input.Search
+          placeholder="Tìm kiếm khoá học..."
+          allowClear
+          enterButton
+          value={searchValue}
+          onChange={e => setSearchValue(e.target.value)}
+          onSearch={v => setSearchValue(v)}
+          style={{ maxWidth: 400 }}
+        />
       </div>
 
       {/* Khóa học miễn phí */}
