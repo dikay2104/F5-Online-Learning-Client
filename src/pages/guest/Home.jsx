@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Typography, Divider, Spin, Empty, Carousel, Button } from 'antd';
+import { Typography, Divider, Spin, Empty, Carousel, Button, Input } from 'antd';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import React, { useRef } from 'react';
 import { getAllCourses } from '../../services/courseService';
-import CourseCard from '../../components/CourseCard';
+import CourseCardStudent from '../../components/CourseCardStudent';
+import { useAuth } from '../../context/authContext';
+import { useNavigate } from 'react-router-dom';
 
 const { Title } = Typography;
 
@@ -29,6 +31,9 @@ export default function GuestHome() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const carouselRef = useRef();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [searchValue, setSearchValue] = useState("");
 
   useEffect(() => {
     getAllCourses()
@@ -37,29 +42,40 @@ export default function GuestHome() {
       .finally(() => setLoading(false));
   }, []);
 
-  const freeCourses = courses.filter(c => c.price === 0);
-  const vipCourses = courses.filter(c => c.price > 0);
+  // Lọc theo search
+  const filteredCourses = courses.filter(course => {
+    const keyword = searchValue.trim().toLowerCase();
+    if (!keyword) return true;
+    return (
+      course.title?.toLowerCase().includes(keyword) ||
+      course.description?.toLowerCase().includes(keyword)
+    );
+  });
+  const freeCourses = filteredCourses.filter((c) => c.price === 0);
+  const vipCourses = filteredCourses.filter((c) => c.price > 0);
 
-  // Custom responsive grid
+  // Custom responsive grid: mỗi hàng tối đa 4 card, giống student/home
   const renderCourseGrid = (courseList) => (
-    <div style={{
-      display: 'flex',
-      flexWrap: 'wrap',
-      gap: '32px',
-      justifyContent: 'flex-start',
-    }}>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4, minmax(240px, 1fr))',
+        gap: '32px',
+        justifyContent: 'center',
+      }}
+    >
       {courseList.map(course => (
-        <div
-          key={course._id}
-          style={{
-            flex: '1 1 260px',
-            minWidth: 260,
-            maxWidth: 340,
-            boxSizing: 'border-box',
-            display: 'flex',
-          }}
-        >
-          <CourseCard course={course} role="guest" />
+        <div key={course._id} style={{ display: 'flex' }}>
+          <CourseCardStudent
+            course={course}
+            onView={() => {
+              if (!user) {
+                navigate('/login');
+              } else {
+                navigate(`/student/courses/${course._id}`);
+              }
+            }}
+          />
         </div>
       ))}
     </div>
@@ -67,8 +83,21 @@ export default function GuestHome() {
 
   return (
     <div style={{ maxWidth: 1400, margin: '0 auto', padding: '32px 16px' }}>
+      {/* Search bar */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 24 }}>
+        <div style={{ maxWidth: 400, width: '100%' }}>
+          <Input.Search
+            placeholder="Tìm kiếm khoá học..."
+            allowClear
+            enterButton
+            value={searchValue}
+            onChange={e => setSearchValue(e.target.value)}
+            onSearch={v => setSearchValue(v)}
+          />
+        </div>
+      </div>
       {/* Slide bar section */}
-      <div style={{ maxWidth: 1100, margin: '0 auto 40px auto', position: 'relative' }}>
+      <div style={{ maxWidth: 1400, margin: '0 auto', padding: '32px 16px', position: 'relative' }}>
         {/* Custom Arrow Buttons */}
         <Button
           shape="circle"
@@ -88,7 +117,7 @@ export default function GuestHome() {
           ref={carouselRef}
           autoplay
           dots
-          style={{ margin: '0 auto', maxWidth: 1100, width: '100%' }}
+          style={{ margin: '0 auto', maxWidth: 1400, width: '100%' }}
         >
           {slides.map((slide, idx) => (
             <div key={idx}>
@@ -99,7 +128,7 @@ export default function GuestHome() {
                 minHeight: 340,
                 overflow: 'hidden',
                 padding: 0,
-                maxWidth: 1100,
+                maxWidth: 1400,
                 width: '100%',
                 margin: '0 auto',
                 border: '1.5px solid #e0e0e0',
@@ -116,6 +145,7 @@ export default function GuestHome() {
                     objectFit: 'cover', 
                     borderRadius: 20, 
                     display: 'block',
+                    maxWidth: 1400,
                   }} 
                 />
                 {/* Caption overlay */}
