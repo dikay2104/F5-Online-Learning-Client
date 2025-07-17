@@ -9,6 +9,16 @@ function getYoutubeVideoId(url) {
   return match ? match[1] : null;
 }
 
+function getDriveFileId(url) {
+  const match = url && url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+  return match ? match[1] : null;
+}
+
+function getDrivePreviewUrl(url) {
+  const fileId = getDriveFileId(url);
+  return fileId ? `https://drive.google.com/file/d/${fileId}/preview` : null;
+}
+
 const VideoPlayer = ({ 
   lesson, 
   courseId, 
@@ -28,7 +38,15 @@ const VideoPlayer = ({
   const [playerReady, setPlayerReady] = useState(false);
   const hasShownResumeMsg = useRef(false);
 
+  // State cho Google Drive
+  const driveIframeRef = useRef(null);
+  const [driveInterval, setDriveInterval] = useState(null);
+
   const videoId = getYoutubeVideoId(lesson?.videoUrl);
+  const isYouTube = !!videoId;
+  const isDrive = !!getDriveFileId(lesson?.videoUrl);
+  const drivePreviewUrl = getDrivePreviewUrl(lesson?.videoUrl);
+  const isSupported = isYouTube || isDrive;
 
   // Lấy progress ban đầu khi component mount
   useEffect(() => {
@@ -57,13 +75,12 @@ const VideoPlayer = ({
     }
   };
 
-  // Khi player sẵn sàng, set duration và seek đến vị trí đã lưu
+  // Khi player sẵn sàng, set duration và seek đến vị trí đã lưu (YouTube)
   const handlePlayerReady = (event) => {
     playerRef.current = event.target;
     setPlayerReady(true);
     const videoDuration = event.target.getDuration();
     setDuration(videoDuration);
-    // Seek đến vị trí đã lưu
     if (initialProgress && initialProgress.watchedSeconds > 0) {
       event.target.seekTo(initialProgress.watchedSeconds, true);
     }
@@ -80,9 +97,9 @@ const VideoPlayer = ({
     }
   };
 
-  // Theo dõi thời gian thực tế khi video đang phát
+  // Theo dõi thời gian thực tế khi video đang phát (YouTube)
   useEffect(() => {
-    if (!playerReady || !playerRef.current) return;
+    if (!isYouTube || !playerReady || !playerRef.current) return;
     let interval = null;
     if (isPlaying) {
       interval = setInterval(() => {
@@ -91,7 +108,41 @@ const VideoPlayer = ({
       }, 1000);
     }
     return () => interval && clearInterval(interval);
-  }, [isPlaying, playerReady]);
+  }, [isYouTube, isPlaying, playerReady]);
+
+  // Google Drive: Theo dõi thời gian thực tế bằng HTML5 API
+  useEffect(() => {
+    if (!isDrive || !driveIframeRef.current) return;
+    // Lấy thẻ <iframe> và truy cập contentWindow
+    const iframe = driveIframeRef.current;
+    let videoEl = null;
+    let interval = null;
+    const tryFindVideo = () => {
+      try {
+        videoEl = iframe.contentWindow.document.querySelector('video');
+        if (videoEl) {
+          setDuration(videoEl.duration);
+          if (initialProgress && initialProgress.watchedSeconds > 0) {
+            videoEl.currentTime = initialProgress.watchedSeconds;
+          }
+          interval = setInterval(() => {
+            setCurrentTime(videoEl.currentTime);
+            setIsPlaying(!videoEl.paused);
+          }, 1000);
+          setDriveInterval(interval);
+        } else {
+          setTimeout(tryFindVideo, 1000);
+        }
+      } catch (e) {
+        setTimeout(tryFindVideo, 1000);
+      }
+    };
+    tryFindVideo();
+    return () => {
+      if (interval) clearInterval(interval);
+      if (driveInterval) clearInterval(driveInterval);
+    };
+  }, [isDrive, drivePreviewUrl, initialProgress]);
 
   // Tính toán progress percent
   useEffect(() => {
@@ -173,7 +224,7 @@ const VideoPlayer = ({
     setLastSavedTime(0);
   };
 
-  if (!lesson?.videoUrl || !videoId) {
+  if (!lesson?.videoUrl || !isSupported) {
     return (
       <Card>
         <div style={{ textAlign: 'center', padding: '40px' }}>
@@ -197,31 +248,48 @@ const VideoPlayer = ({
       }
       extra={
         <Space>
-          <Button 
-            type={isPlaying ? "default" : "primary"}
-            icon={isPlaying ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
-            onClick={handlePlayPause}
-            disabled={!duration}
-          >
-            {isPlaying ? 'Tạm dừng' : 'Phát'}
-          </Button>
-          <Button 
-            icon={<ReloadOutlined />}
-            onClick={handleReset}
-            disabled={currentTime === 0}
-          >
-            Làm lại
-          </Button>
+          {/* Chỉ hiện nút điều khiển cho YouTube */}
+          {isYouTube && <>
+            <Button 
+              type={isPlaying ? "default" : "primary"}
+              icon={isPlaying ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
+              onClick={handlePlayPause}
+              disabled={!duration}
+            >
+              {isPlaying ? 'Tạm dừng' : 'Phát'}
+            </Button>
+            <Button 
+              icon={<ReloadOutlined />}
+              onClick={handleReset}
+              disabled={currentTime === 0}
+            >
+              Làm lại
+            </Button>
+          </>}
         </Space>
       }
     >
       <div style={{ marginBottom: '16px' }}>
-        <YouTube
-          videoId={videoId}
-          opts={{ width: '100%', height: '400' }}
-          onReady={handlePlayerReady}
-          onStateChange={handleStateChange}
-        />
+        {isYouTube && (
+          <YouTube
+            videoId={videoId}
+            opts={{ width: '100%', height: '400' }}
+            onReady={handlePlayerReady}
+            onStateChange={handleStateChange}
+          />
+        )}
+        {isDrive && (
+          <iframe
+            ref={driveIframeRef}
+            src={drivePreviewUrl}
+            width="100%"
+            height="400"
+            allow="autoplay"
+            frameBorder="0"
+            allowFullScreen
+            title="Google Drive Video"
+          />
+        )}
       </div>
 
       {/* Progress Bar */}
@@ -234,7 +302,6 @@ const VideoPlayer = ({
           percent={progressPercent} 
           status={isCompleted ? "success" : "active"}
           strokeColor={isCompleted ? "#52c41a" : "#1890ff"}
-          onClick={handleSeek}
           style={{ cursor: 'pointer' }}
         />
       </div>
