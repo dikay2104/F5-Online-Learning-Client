@@ -4,7 +4,7 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { getMyEnrollments } from '../services/enrollmentService';
 import Loading from '../components/Loading';
-import { Card, Button, Progress, List, Typography, Avatar } from 'antd';
+import { Card, Button, Progress, List, Typography, Avatar, Input } from 'antd';
 import { getLessonsByCourse } from '../services/lessonService';
 import { getProgressByCourse } from '../services/progressService';
 import { UserOutlined } from '@ant-design/icons';
@@ -20,6 +20,8 @@ export default function MyCoursesPage() {
   // Thêm state lưu progress cho từng course
   const [progresses, setProgresses] = useState({}); // { courseId: % }
   const [lessonCounts, setLessonCounts] = useState({}); // { courseId: số bài học thực tế }
+  const [searchValue, setSearchValue] = useState("");
+  // Thêm state lưu progress cho từng course
 
   useEffect(() => {
     if (user?.role === 'student') {
@@ -112,11 +114,36 @@ export default function MyCoursesPage() {
     );
   }
 
+  // Lọc theo search
+  const filteredEnrollments = enrollments.filter(enrollment => {
+    const course = enrollment.course;
+    if (!course) return false;
+    const keyword = searchValue.trim().toLowerCase();
+    if (!keyword) return true;
+    return (
+      course.title?.toLowerCase().includes(keyword) ||
+      course.description?.toLowerCase().includes(keyword)
+    );
+  });
+
   return (
     <div style={{ padding: 24 }}>
+      {/* Search bar */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 24 }}>
+        <div style={{ maxWidth: 400, width: '100%' }}>
+          <Input.Search
+            placeholder="Tìm kiếm khoá học..."
+            allowClear
+            enterButton
+            value={searchValue}
+            onChange={e => setSearchValue(e.target.value)}
+            onSearch={v => setSearchValue(v)}
+          />
+        </div>
+      </div>
       <h2>Khóa học của tôi</h2>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24 }}>
-        {enrollments
+        {filteredEnrollments
           .filter(enrollment => enrollment.course && enrollment.course._id)
           .map(enrollment => {
             const course = enrollment.course;

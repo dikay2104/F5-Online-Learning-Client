@@ -22,7 +22,19 @@ export default function CourseCardStudent({ course, onView, isEnrolled }) {
       }
       actions={[
         isEnrolled ? (
-          <Button type="default" disabled>Đã tham gia</Button>
+          <Button
+            type="primary"
+            onClick={() => {
+              const firstLessonId = course.lessons && course.lessons.length > 0 ? course.lessons[0]._id : null;
+              if (firstLessonId) {
+                window.location.href = `/student/lessons/${firstLessonId}`;
+              } else {
+                window.location.href = `/student/courses/${course._id}`;
+              }
+            }}
+          >
+            Vào học
+          </Button>
         ) : (
           <Button type="primary" onClick={onView}>Xem chi tiết</Button>
         )

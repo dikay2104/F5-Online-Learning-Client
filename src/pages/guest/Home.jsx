@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Typography, Divider, Spin, Empty, Carousel, Button } from 'antd';
+import { Typography, Divider, Spin, Empty, Carousel, Button, Input } from 'antd';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import React, { useRef } from 'react';
 import { getAllCourses } from '../../services/courseService';
@@ -28,6 +28,7 @@ const slides = [
 export default function GuestHome() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchValue, setSearchValue] = useState("");
   const carouselRef = useRef();
 
   useEffect(() => {
@@ -37,28 +38,40 @@ export default function GuestHome() {
       .finally(() => setLoading(false));
   }, []);
 
-  const freeCourses = courses.filter(c => c.price === 0);
-  const vipCourses = courses.filter(c => c.price > 0);
+  const filteredCourses = courses.filter(course => {
+    const keyword = searchValue.trim().toLowerCase();
+    if (!keyword) return true;
+    return (
+      course.title?.toLowerCase().includes(keyword) ||
+      course.description?.toLowerCase().includes(keyword)
+    );
+  });
+  const freeCourses = filteredCourses.filter((c) => c.price === 0);
+  const vipCourses = filteredCourses.filter((c) => c.price > 0);
 
   // Custom responsive grid
   const renderCourseGrid = (courseList) => (
-    <div style={{
-      display: 'flex',
-      flexWrap: 'wrap',
-      gap: '32px',
-      justifyContent: 'flex-start',
-    }}>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+        gap: '32px',
+        justifyContent: 'center',
+        width: '100%',
+        margin: '0 auto',
+      }}
+    >
       {courseList.map(course => (
         <div
-          key={course._id}
-          style={{
-            flex: '1 1 260px',
-            minWidth: 260,
-            maxWidth: 340,
-            boxSizing: 'border-box',
-            display: 'flex',
-          }}
-        >
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(260px,  300px))',
+          gap: '32px',
+          justifyContent: 'center',
+          width: '100%',
+          margin: '0 auto',
+        }}
+      >
           <CourseCard course={course} role="guest" />
         </div>
       ))}
@@ -68,13 +81,28 @@ export default function GuestHome() {
   return (
     <div style={{ maxWidth: 1400, margin: '0 auto', padding: '32px 16px' }}>
       {/* Slide bar section */}
-      <div style={{ maxWidth: 1100, margin: '0 auto 40px auto', position: 'relative' }}>
+      <div style={{ width: '100%', margin: '0 auto', padding: '32px 0', position: 'relative' }}>
         {/* Custom Arrow Buttons */}
         <Button
           shape="circle"
           icon={<LeftOutlined />}
           size="large"
-          style={{ position: 'absolute', top: '50%', left: -24, zIndex: 2, transform: 'translateY(-50%)', boxShadow: '0 2px 8px rgba(0,0,0,0.12)' }}
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: -18,
+            zIndex: 10,
+            transform: 'translateY(-50%)',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+            background: '#fff',
+            border: '1.5px solid #e0e0e0',
+            borderRadius: 20,
+            width: 40,
+            height: 40,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
           onClick={() => carouselRef.current.prev()}
         />
         <Button
@@ -142,6 +170,18 @@ export default function GuestHome() {
             </div>
           ))}
         </Carousel>
+      </div>
+      {/* Search bar dưới carousel */}
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 32 }}>
+        <Input.Search
+          placeholder="Tìm kiếm khoá học..."
+          allowClear
+          enterButton
+          value={searchValue}
+          onChange={e => setSearchValue(e.target.value)}
+          onSearch={v => setSearchValue(v)}
+          style={{ maxWidth: 400 }}
+        />
       </div>
 
       {/* Khóa học miễn phí */}
