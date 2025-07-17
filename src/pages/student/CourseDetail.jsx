@@ -202,7 +202,12 @@ export default function StudentCourseDetail() {
                   {course.price === 0 ? "Tham gia học" : "Thanh toán"}
                 </Button>
               ) : (
-                <Tag color="success" style={{ fontSize: 16, padding: '4px 16px' }}>Đã tham gia</Tag>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <Tag color="success" style={{ fontSize: 16, padding: '4px 16px', marginBottom: 0 }}>Đã tham gia</Tag>
+                  <Button type="primary" size="large" shape="round" onClick={() => navigate(`/my-courses`)}>
+                    Vào học
+                  </Button>
+                </div>
               ))}
             </div>
           </div>

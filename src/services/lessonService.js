@@ -59,3 +59,16 @@ export const getProgressByCourse = (courseId) =>
       Authorization: `Bearer ${localStorage.getItem('token')}`,
     },
   });
+
+// Tải lên video bài học bằng Cloudinary thông qua backend
+export const uploadVideo = (token, file) => {
+  const formData = new FormData();
+  formData.append('video', file);
+
+  return axios.post(`${process.env.REACT_APP_API_BASE_URL}/upload/video`, formData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+};

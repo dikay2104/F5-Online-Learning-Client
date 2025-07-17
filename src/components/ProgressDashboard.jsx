@@ -101,7 +101,7 @@ const ProgressDashboard = () => {
       {/* Thống kê tổng quan */}
       <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
         <Col xs={24} sm={12} lg={6}>
-          <Card>
+          <Card style={{ height: 140, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Statistic
               title="Tổng khóa học"
               value={statistics.totalCourses}
@@ -111,7 +111,7 @@ const ProgressDashboard = () => {
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
-          <Card>
+          <Card style={{ height: 140, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Statistic
               title="Tổng bài học"
               value={statistics.totalLessons}
@@ -121,7 +121,7 @@ const ProgressDashboard = () => {
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
-          <Card>
+          <Card style={{ height: 140, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Statistic
               title="Bài đã hoàn thành"
               value={statistics.completedLessons}
@@ -131,7 +131,7 @@ const ProgressDashboard = () => {
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
-          <Card>
+          <Card style={{ height: 140, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Statistic
               title="Tiến độ trung bình"
               value={statistics.averageProgress}
