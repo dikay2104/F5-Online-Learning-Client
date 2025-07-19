@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Table, message, Tag, Input, Select, Button, Modal } from "antd";
-import { getAllCourses, approveCourse, rejectCourse } from "../../services/courseService";
+import { getAllCourses } from "../../services/courseService";
 import { useNavigate } from "react-router-dom";
 const { Option } = Select;
 
@@ -33,27 +33,27 @@ export default function ManageCourses() {
     setDetailModalOpen(true);
   };
 
-  const handleApprove = async (id) => {
-    try {
-      await approveCourse(id);
-      message.success("Đã duyệt khóa học");
-      setDetailModalOpen(false);
-      fetchCourses();
-    } catch {
-      message.error("Duyệt khóa học thất bại");
-    }
-  };
+  // const handleApprove = async (id) => {
+  //   try {
+  //     await approveCourse(id);
+  //     message.success("Đã duyệt khóa học");
+  //     setDetailModalOpen(false);
+  //     fetchCourses();
+  //   } catch {
+  //     message.error("Duyệt khóa học thất bại");
+  //   }
+  // };
 
-  const handleReject = async (id) => {
-    try {
-      await rejectCourse(id);
-      message.success("Đã từ chối khóa học");
-      setDetailModalOpen(false);
-      fetchCourses();
-    } catch {
-      message.error("Từ chối khóa học thất bại");
-    }
-  };
+  // const handleReject = async (id) => {
+  //   try {
+  //     await rejectCourse(id);
+  //     message.success("Đã từ chối khóa học");
+  //     setDetailModalOpen(false);
+  //     fetchCourses();
+  //   } catch {
+  //     message.error("Từ chối khóa học thất bại");
+  //   }
+  // };
 
   const columns = [
     { title: "Tên khóa học", dataIndex: "title", key: "title" },

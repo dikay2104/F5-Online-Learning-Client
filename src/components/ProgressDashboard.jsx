@@ -9,6 +9,8 @@ import {
   UserOutlined
 } from '@ant-design/icons';
 import { getUserProgress, formatTime } from '../services/progressService';
+import { getMyEnrollments } from '../services/enrollmentService';
+import { getLessonsByCourse } from '../services/lessonService';
 
 const ProgressDashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -22,30 +24,50 @@ const ProgressDashboard = () => {
   const loadProgressData = async () => {
     try {
       setLoading(true);
+      // Lấy enrollments (các khóa học đã đăng ký)
+      const enrollmentsRes = await getMyEnrollments();
+      const enrollments = enrollmentsRes.data.data || [];
+      // Lấy progress
       const response = await getUserProgress();
       const data = response.data.data;
-      
       setProgressData(data);
-      
-      // Lấy danh sách khóa học gần đây (có progress)
-      const courseMap = new Map();
+
+      // Map progress theo lessonId
+      const progressMap = new Map();
       data.progresses.forEach(progress => {
-        const courseId = progress.course._id;
+        progressMap.set(progress.lesson._id, progress);
+      });
+
+      // Lấy danh sách bài học cho từng khóa học
+      const courseLessons = [];
+      for (const enrollment of enrollments) {
+        const course = enrollment.course;
+        if (!course || !course._id) continue;
+        const lessonsRes = await getLessonsByCourse(course._id);
+        const lessons = lessonsRes.data.data || [];
+        courseLessons.push({ course, lessons });
+      }
+
+      // Join bài học với progress
+      const courseMap = new Map();
+      courseLessons.forEach(({ course, lessons }) => {
+        const courseId = course._id;
         if (!courseMap.has(courseId)) {
           courseMap.set(courseId, {
-            course: progress.course,
+            course,
             lessons: [],
-            totalProgress: 0,
             completedLessons: 0
           });
         }
-        
         const courseData = courseMap.get(courseId);
-        courseData.lessons.push(progress);
-        
-        if (progress.videoDuration && progress.watchedSeconds / progress.videoDuration >= 0.8) {
-          courseData.completedLessons++;
-        }
+        lessons.forEach(lesson => {
+          const progress = progressMap.get(lesson._id);
+          const watchedSeconds = progress ? progress.watchedSeconds : 0;
+          const videoDuration = lesson.videoDuration || (progress ? progress.videoDuration : 0);
+          const isCompleted = videoDuration > 0 && watchedSeconds / videoDuration >= 0.8;
+          if (isCompleted) courseData.completedLessons++;
+          courseData.lessons.push({ ...lesson, watchedSeconds, videoDuration, isCompleted });
+        });
       });
 
       // Tính % hoàn thành cho từng khóa học
@@ -54,21 +76,15 @@ const ProgressDashboard = () => {
         const progressPercent = totalLessons > 0 
           ? Math.round((courseData.completedLessons / totalLessons) * 100)
           : 0;
-        
         return {
           ...courseData,
           progressPercent
         };
       });
 
-      // Sắp xếp theo thời gian cập nhật gần nhất
-      coursesWithProgress.sort((a, b) => {
-        const aLatest = Math.max(...a.lessons.map(l => new Date(l.updatedAt)));
-        const bLatest = Math.max(...b.lessons.map(l => new Date(l.updatedAt)));
-        return bLatest - aLatest;
-      });
-
-      setRecentCourses(coursesWithProgress.slice(0, 5)); // Lấy 5 khóa học gần nhất
+      // Sắp xếp theo số lượng bài học đã hoàn thành gần nhất
+      coursesWithProgress.sort((a, b) => b.completedLessons - a.completedLessons);
+      setRecentCourses(coursesWithProgress.slice(0, 5));
     } catch (error) {
       console.error('Lỗi khi tải dữ liệu tiến độ:', error);
     } finally {
