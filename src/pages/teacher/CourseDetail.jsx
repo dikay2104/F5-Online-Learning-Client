@@ -21,8 +21,6 @@ import { ClockCircleOutlined } from "@ant-design/icons";
 import { getLessonsByCourse } from "../../services/lessonService";
 import {
   getCourseById,
-  approveCourse,
-  rejectCourse,
 } from "../../services/courseService";
 import { getCollectionsByCourse } from "../../services/collectionService";
 import { getFeedbacksByCourse } from "../../services/feedbackService";
@@ -202,8 +200,7 @@ export default function CourseDetailPage() {
                     type="primary"
                     style={{ marginRight: 8 }}
                     onClick={async () => {
-                      await approveCourse(courseId);
-                      window.location.reload();
+                      await window.location.reload();
                     }}
                   >
                     Duyệt
@@ -211,8 +208,7 @@ export default function CourseDetailPage() {
                   <Button
                     danger
                     onClick={async () => {
-                      await rejectCourse(courseId);
-                      window.location.reload();
+                      await window.location.reload();
                     }}
                   >
                     Từ chối

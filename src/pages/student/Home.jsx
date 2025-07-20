@@ -62,31 +62,6 @@ export default function StudentHome() {
     fetchEnrollments();
   }, []);
 
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const responseCode = params.get("vnp_ResponseCode");
-    const orderId = params.get("vnp_TxnRef");
-    if (responseCode === "00" && orderId) {
-      // Gọi API xác nhận enrollment
-      axios.post(
-        process.env.REACT_APP_API_BASE_URL + "/enrollments/confirm",
-        { orderId },
-        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-      ).then(() => {
-        fetchEnrollments();
-        message.success("Thanh toán thành công!");
-        window.history.replaceState({}, document.title, "/");
-      }).catch(() => {
-        message.error("Có lỗi khi xác nhận tham gia khóa học!");
-        window.history.replaceState({}, document.title, "/");
-      });
-    }
-    if (responseCode && responseCode !== "00") {
-      message.error("Thanh toán thất bại!");
-      window.history.replaceState({}, document.title, "/");
-    }
-  }, [location]);
-
   // Khi bấm "Xem chi tiết"
   const handleView = (courseId) => {
     console.log("View course", courseId, user);

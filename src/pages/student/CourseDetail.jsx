@@ -10,6 +10,7 @@ import { getFeedbacksByCourse, createFeedback } from "../../services/feedbackSer
 import { getCollectionsByCourse } from "../../services/collectionService";
 import { getLessonsByCourse } from "../../services/lessonService";
 import { Form, Input } from "antd";
+import { CreditCardOutlined, QrcodeOutlined } from "@ant-design/icons";
 
 const { Title, Text } = Typography;
 const { Panel } = Collapse;
@@ -30,6 +31,7 @@ export default function StudentCourseDetail() {
   const [form] = Form.useForm();
   const [collections, setCollections] = useState([]);
   const [lessons, setLessons] = useState([]);
+  const [payModalOpen, setPayModalOpen] = useState(false);
 
   useEffect(() => {
     if (user?.role === 'admin') {
@@ -102,13 +104,22 @@ export default function StudentCourseDetail() {
         message.error("Tham gia thất bại!");
       }
     } else {
-      try {
-        const res = await createPayment(courseId);
-        window.location.href = res.data.paymentUrl;
-      } catch (err) {
-        message.error("Không thể thanh toán!");
-      }
+      setPayModalOpen(true);
     }
+  };
+
+  const handleVNPay = async () => {
+    try {
+      const res = await createPayment(courseId);
+      window.location.href = res.data.paymentUrl;
+    } catch (err) {
+      message.error("Không thể thanh toán!");
+    }
+  };
+
+  const handleMoMo = () => {
+    message.info("Chức năng này chỉ để tham khảo/báo cáo, không thực hiện thanh toán MoMo thực tế.");
+    setPayModalOpen(false);
   };
 
   // Xử lý mở modal xem video bài học
@@ -198,9 +209,79 @@ export default function StudentCourseDetail() {
               
               {/* Ẩn nút tham gia/thanh toán nếu là admin */}
               {user?.role !== 'admin' && (!isEnrolled ? (
-                <Button type="primary" size="large" shape="round" onClick={handleJoin}>
-                  {course.price === 0 ? "Tham gia học" : "Thanh toán"}
-                </Button>
+                <>
+                  <Button type="primary" size="large" shape="round" onClick={handleJoin}>
+                    {course.price === 0 ? "Tham gia học" : "Thanh toán"}
+                  </Button>
+                  <Modal
+                    open={payModalOpen}
+                    onCancel={() => setPayModalOpen(false)}
+                    footer={null}
+                    title={<div style={{ textAlign: "center", fontWeight: 600, fontSize: 20 }}>Chọn phương thức thanh toán</div>}
+                    centered
+                    bodyStyle={{
+                      padding: 32,
+                      borderRadius: 16,
+                      boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
+                      background: "#f9f9f9"
+                    }}
+                  >
+                    <Button
+                      type="primary"
+                      block
+                      size="large"
+                      style={{
+                        marginBottom: 18,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 12,
+                        fontWeight: 500,
+                        fontSize: 16,
+                        borderRadius: 8,
+                        boxShadow: "0 2px 8px rgba(24,144,255,0.08)"
+                      }}
+                      icon={<QrcodeOutlined style={{ fontSize: 22 }} />}
+                      onClick={handleVNPay}
+                    >
+                      Thanh toán qua VNPay
+                    </Button>
+                    <Button
+                      block
+                      size="large"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 12,
+                        fontWeight: 500,
+                        fontSize: 16,
+                        borderRadius: 8,
+                        background: "#fff0f6",
+                        color: "#d81b60",
+                        border: "1px solid #ffd6e7"
+                      }}
+                      icon={
+                        <img
+                          src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png"
+                          alt="MoMo"
+                          style={{ width: 22, height: 22, borderRadius: 4 }}
+                        />
+                      }
+                      onClick={handleMoMo}
+                    >
+                      Thanh toán qua MoMo
+                    </Button>
+                    <div style={{ marginTop: 18, color: "#888", textAlign: "center", fontSize: 14 }}>
+                      <div>
+                        <QrcodeOutlined style={{ color: "#1890ff" }} /> VNPay: Thanh toán an toàn, bảo mật.
+                      </div>
+                      <div>
+                        <img src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png" alt="MoMo" style={{ width: 18, verticalAlign: "middle" }} /> MoMo: Chỉ để tham khảo/báo cáo.
+                      </div>
+                    </div>
+                  </Modal>
+                </>
               ) : (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <Tag color="success" style={{ fontSize: 16, padding: '4px 16px', marginBottom: 0 }}>Đã tham gia</Tag>
