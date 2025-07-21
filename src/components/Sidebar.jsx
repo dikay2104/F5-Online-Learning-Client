@@ -39,7 +39,7 @@ export default function Sidebar() {
     commonHomeItem,
     { key: '/my-courses', icon: <BookOutlined />, label: 'My Courses' },
     { key: '/feedback', icon: <MessageOutlined />, label: 'Feedback' },
-    { key: '/students', icon: <UsergroupAddOutlined />, label: 'Students' },
+    { key: '/my-courses/statistic', icon: <UsergroupAddOutlined />, label: 'Statistic' },
     commonAboutItem,
   ];
 

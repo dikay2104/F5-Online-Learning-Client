@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Menu, Dropdown, Avatar, Badge, Modal, List, Button, message, Spin } from 'antd';
 import { UserOutlined, SettingOutlined, LogoutOutlined, BellOutlined, DeleteOutlined, CheckOutlined} from '@ant-design/icons';
 import { useAuth } from '../context/authContext';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import {
   getNotifications,
   markAsRead,
@@ -19,20 +19,13 @@ export default function Navbar() {
   const [loading, setLoading] = useState(false);
   const token = localStorage.getItem('token');
 
-  useEffect(() => {
-    if (user?._id) {
-      socket.emit('join', user._id);
-      fetchNotifications();
-    }
-  }, [user]);
-
   const handleLogout = () => {
     localStorage.removeItem('token');
     setUser(null); // ✅ cập nhật lại context
     navigate('/guest/home');
   };
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     try {
       setLoading(true);
       const res = await getNotifications(token);
@@ -42,7 +35,14 @@ export default function Navbar() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    if (user?._id) {
+      socket.emit('join', user._id);
+      fetchNotifications();
+    }
+  }, [user, fetchNotifications]);
 
   const handleMarkAsRead = async (id) => {
     await markAsRead(token, id);
@@ -73,12 +73,12 @@ export default function Navbar() {
     return () => {
       socket.off('new_notification', handleNewNotification);
     };
-  }, []);
+  }, [fetchNotifications]);
 
   // Khi mở modal thì fetch thông báo
   useEffect(() => {
     if (visible) fetchNotifications();
-  }, [visible]);
+  }, [visible, fetchNotifications]);
 
   const userMenu = (
     <Menu
@@ -233,7 +233,34 @@ export default function Navbar() {
                 ]}
               >
                 <div>
-                  <div style={{ fontWeight: item.read ? 'normal' : 'bold', marginBottom: 4 }}>
+                  <div
+                    style={{
+                      fontWeight: item.read ? 'normal' : 'bold',
+                      marginBottom: 4,
+                      cursor: 'pointer',
+                    }}
+                    onClick={() => {
+                      handleMarkAsRead(item._id);
+                      let path = null;
+                      switch (item.type) {
+                        case 'course_approved':
+                        case 'course_rejected':
+                        case 'course_submitted':
+                        case 'feedback_created':
+                        case 'feedback_replied':
+                          path = `/courses/${item.targetRef}`;
+                          break;
+
+                        // Thêm các loại khác nếu cần
+                        default:
+                          break;
+                      }
+                      if (path) {
+                        navigate(path);
+                        setVisible(false);
+                      }
+                    }}
+                  >
                     {item.message}
                   </div>
                   <div style={{ fontSize: 12, color: '#888' }}>
@@ -241,8 +268,8 @@ export default function Navbar() {
                   </div>
                 </div>
               </List.Item>
-
             )}
+            style={{ maxHeight: 300, overflowY: 'auto' }}
           />
         )}
       </Modal>

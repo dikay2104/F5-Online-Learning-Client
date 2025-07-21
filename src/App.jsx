@@ -24,6 +24,7 @@ import Profile from './pages/Profile';
 import GuestHome from './pages/guest/Home';
 import ProgressPage from './pages/ProgressPage';
 import UploadForm from './pages/uploadForm';
+import StatisticPage from './pages/teacher/StatisticPage';
 
 
 function PrivateRoute({ element }) {
@@ -48,6 +49,7 @@ export default function App() {
               <Route path="/courses/:courseId" element={<PrivateRoute element={<CourseDetailPage />} />} />
               <Route path="/courses/create" element={<PrivateRoute element={<CourseFormPage />} />} />
               <Route path="/courses/:courseId/edit" element={<PrivateRoute element={<CourseFormPage />} />} />
+              <Route path="/my-courses/statistic" element={<PrivateRoute element={<StatisticPage />} />} />
               
               {/* <Route path="/" element={<Home />} /> */}
               <Route path="/login" element={<Login />} />
