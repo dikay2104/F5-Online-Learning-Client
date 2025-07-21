@@ -164,7 +164,6 @@ export default function LessonLearn() {
           ) : (
             <div>Không có video cho bài học này.</div>
           )}
-          <h2 style={{ marginTop: 16 }}>{lesson.title}</h2>
           <div style={{ color: '#888', marginBottom: 8 }}>{lesson.description}</div>
           <div>
             <Button disabled={!prevLesson} onClick={() => prevLesson && navigate(`/student/lessons/${prevLesson._id}`)}>

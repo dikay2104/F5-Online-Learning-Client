@@ -73,6 +73,45 @@ export default function StudentHome() {
     }
   };
 
+  // Tham gia học miễn phí
+  const handleJoin = async (courseId) => {
+    if (!user) {
+      localStorage.setItem("redirectAfterLogin", `/student/courses/${courseId}`);
+      navigate("/login");
+      return;
+    }
+    try {
+      await axios.post(
+        process.env.REACT_APP_API_BASE_URL + "/enrollments",
+        { courseId },
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      );
+      message.success("Đã tham gia khóa học!");
+      fetchEnrollments();
+    } catch (err) {
+      message.error("Tham gia thất bại!");
+    }
+  };
+
+  // Thanh toán khóa học trả phí
+  const handlePay = async (courseId) => {
+    if (!user) {
+      localStorage.setItem("redirectAfterLogin", `/student/courses/${courseId}`);
+      navigate("/login");
+      return;
+    }
+    try {
+      const res = await axios.post(
+        process.env.REACT_APP_API_BASE_URL + "/enrollments/payment",
+        { courseId },
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      );
+      window.location.href = res.data.paymentUrl;
+    } catch (err) {
+      message.error("Không thể thanh toán!");
+    }
+  };
+
   // Lọc theo search
   const filteredCourses = courses.filter(course => {
     const keyword = searchValue.trim().toLowerCase();
@@ -103,6 +142,8 @@ export default function StudentHome() {
             course={course}
             isEnrolled={enrolledCourseIds.includes(course._id)}
             onView={() => handleView(course._id)}
+            onJoin={() => handleJoin(course._id)}
+            onPay={() => handlePay(course._id)}
           />
         </div>
       ))}
