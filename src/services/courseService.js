@@ -52,6 +52,16 @@ export const submitCourse = (token, courseId) =>
     headers: { Authorization: `Bearer ${token}` }
   });
 
+export const approveCourse = (token, courseId) =>
+  axios.put(`${API}/${courseId}/approve`, {}, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+
+export const rejectCourse = (token, courseId) =>
+  axios.put(`${API}/${courseId}/reject`, {}, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+
 // Tải lên thumbnail bằng Cloudinary thông qua backend
 export const uploadThumbnail = (token, file) => {
   const formData = new FormData();

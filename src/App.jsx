@@ -25,6 +25,7 @@ import GuestHome from './pages/guest/Home';
 import ProgressPage from './pages/ProgressPage';
 import UploadForm from './pages/uploadForm';
 import StatisticPage from './pages/teacher/StatisticPage';
+import AdminDashboard from './pages/admin/AdminDashboard';
 
 
 function PrivateRoute({ element }) {
@@ -61,6 +62,7 @@ export default function App() {
               <Route path="/admin/users" element={<ManageUsers />} />
               <Route path="/admin/feedbacks" element={<ManageFeedback />} />
               <Route path="/admin/courses" element={<ManageCourses />} />
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
 
               {/*route cho student*/}
               <Route path="/student/home" element={<StudentHome />} />
