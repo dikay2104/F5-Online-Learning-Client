@@ -4,7 +4,7 @@ import CourseCardStudent from "../../components/CourseCardStudent";
 import Loading from "../../components/Loading";
 import { useAuth } from "../../context/authContext";
 import { useNavigate, useLocation } from "react-router-dom";
-import { message, Typography, Divider, Spin, Empty, Carousel, Button, Input } from "antd";
+import { message, Typography, Divider, Spin, Empty, Carousel, Button, Input, Select, Space } from "antd";
 import { getMyEnrollments } from "../../services/enrollmentService";
 import axios from "axios";
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
@@ -39,6 +39,7 @@ export default function StudentHome() {
   const location = useLocation();
   const carouselRef = useRef();
   const [searchValue, setSearchValue] = useState("");
+  const [priceFilter, setPriceFilter] = useState("all");
 
   // Lấy danh sách enrollment khi vào trang hoặc sau khi thanh toán thành công
   const fetchEnrollments = async () => {
@@ -55,7 +56,10 @@ export default function StudentHome() {
   useEffect(() => {
     getAllCourses()
       .then(res => {
-        setCourses(res.data.data || res.data);
+        const approvedCourses = (res.data.data || res.data).filter(
+          (course) => course.status === 'approved'
+        );
+        setCourses(approvedCourses);
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -112,15 +116,24 @@ export default function StudentHome() {
     }
   };
 
-  // Lọc theo search
-  const filteredCourses = courses.filter(course => {
-    const keyword = searchValue.trim().toLowerCase();
-    if (!keyword) return true;
-    return (
-      course.title?.toLowerCase().includes(keyword) ||
-      course.description?.toLowerCase().includes(keyword)
-    );
-  });
+  // Lọc theo search và giá
+  const filteredCourses = courses
+    .filter(course => {
+      const keyword = searchValue.trim().toLowerCase();
+      if (!keyword) return true;
+      return (
+        course.title?.toLowerCase().includes(keyword) ||
+        course.description?.toLowerCase().includes(keyword)
+      );
+    })
+    .filter(course => {
+      if (priceFilter === 'all') return true;
+      if (priceFilter === '0-500') return course.price >= 0 && course.price <= 500000;
+      if (priceFilter === '500-1m') return course.price > 500000 && course.price <= 1000000;
+      if (priceFilter === '1m+') return course.price > 1000000;
+      return true;
+    });
+
   const freeCourses = filteredCourses.filter((c) => c.price === 0);
   const vipCourses = filteredCourses.filter((c) => c.price > 0);
 
@@ -129,7 +142,7 @@ export default function StudentHome() {
     <div
       style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, 320px)',
         gap: '32px',
         justifyContent: 'center',
         width: '100%',
@@ -242,8 +255,8 @@ export default function StudentHome() {
           ))}
         </Carousel>
       </div>
-      {/* Search bar dưới carousel */}
-      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 32 }}>
+      {/* Search bar và Sort dưới carousel */}
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 32, gap: 16 }}>
         <Input.Search
           placeholder="Tìm kiếm khoá học..."
           allowClear
@@ -253,6 +266,16 @@ export default function StudentHome() {
           onSearch={v => setSearchValue(v)}
           style={{ maxWidth: 400 }}
         />
+        <Select
+          defaultValue="all"
+          style={{ width: 180 }}
+          onChange={(value) => setPriceFilter(value)}
+        >
+          <Select.Option value="all">Tất cả mức giá</Select.Option>
+          <Select.Option value="0-500">0 - 500.000đ</Select.Option>
+          <Select.Option value="500-1m">500.000đ - 1 triệu</Select.Option>
+          <Select.Option value="1m+">Trên 1 triệu</Select.Option>
+        </Select>
       </div>
 
       {/* Khóa học miễn phí */}
@@ -274,14 +297,14 @@ export default function StudentHome() {
       {/* Khóa học VIP/Pro */}
       <div style={{ marginBottom: 48 }}>
         <Divider orientation="left" orientationMargin={0} style={{ fontWeight: 600, fontSize: 18 }}>
-          Khóa học VIP/Pro
+          Khóa học VIP
         </Divider>
         {loading ? (
           <div style={{ textAlign: 'center', padding: '40px 0' }}>
             <Spin size="large" />
           </div>
         ) : vipCourses.length === 0 ? (
-          <Empty description="Chưa có khóa học VIP/Pro" style={{ margin: '32px 0' }} />
+          <Empty description="Chưa có khóa học VIP" style={{ margin: '32px 0' }} />
         ) : (
           renderCourseGrid(vipCourses)
         )}
