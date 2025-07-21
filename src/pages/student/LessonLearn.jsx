@@ -155,7 +155,7 @@ export default function LessonLearn() {
   const nextLesson = lessons[currentIdx + 1];
 
   return (
-    <div style={{ display: 'flex', height: '100vh' }}>
+    <div style={{ display: 'flex', height: '100%' }}>
       {/* Video + nội dung */}
       <div style={{ flex: 2, padding: 32, background: '#fff' }}>
         <Card style={{ marginBottom: 24 }}>
