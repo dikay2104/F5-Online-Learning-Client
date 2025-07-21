@@ -153,22 +153,13 @@ export default function MyCoursesPage() {
               <div key={course._id}>
                 <Card
                   hoverable
-                  style={{ width: 320 }}
-                  actions={[
-                    <Button
-                      type="primary"
-                      onClick={() => {
-                        if (firstLessonMap[course._id]) {
-                          localStorage.setItem('currentCourseId', course._id); // Lưu courseId cho LessonLearn
-                          navigate(`/student/lessons/${firstLessonMap[course._id]}`);
-                        }
-                      }}
-                      disabled={!firstLessonMap[course._id]}
-                      style={{ width: '100%' }}
-                    >
-                      Bắt đầu học
-                    </Button>
-                  ]}
+                  style={{ width: 320, cursor: 'pointer' }}
+                  onClick={() => {
+                    if (firstLessonMap[course._id]) {
+                      localStorage.setItem('currentCourseId', course._id); // Lưu courseId cho LessonLearn
+                      navigate(`/student/lessons/${firstLessonMap[course._id]}`);
+                    }
+                  }}
                   cover={
                     <img
                       alt="course-thumbnail"

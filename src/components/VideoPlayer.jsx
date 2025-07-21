@@ -436,7 +436,6 @@ const VideoPlayer = ({
       <div style={{ marginBottom: '16px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
           <span>Tiến độ: {formatTime(currentTime)} / {formatTime(duration)}</span>
-          <span>{progressPercent}%</span>
         </div>
         <Progress 
           percent={progressPercent} 
