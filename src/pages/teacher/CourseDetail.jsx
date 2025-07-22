@@ -232,14 +232,14 @@ export default function CourseDetailPage() {
             </Card>
           )}
 
-          {user?.role === 'teacher' && user?._id === course?.teacher?._id && (
+          {/* {user?.role === 'teacher' && user?._id === course?.teacher?._id && ( */}
             <Button
               type="primary"
               onClick={() => navigate(`/courses/${courseId}/edit`)}
             >
               Chỉnh sửa khóa học
             </Button>
-          )}
+          {/* )} */}
         </Space>
       </Card>
 
@@ -351,7 +351,7 @@ export default function CourseDetailPage() {
                         <Button
                           type="link"
                           onClick={() =>
-                            navigate(`/lessons/${lesson._id}/edit`)
+                            navigate(`/courses/${courseId}/edit`)
                           }
                         >
                           Chỉnh sửa
