@@ -29,10 +29,9 @@ const slides = [
 export default function GuestHome() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchValue, setSearchValue] = useState("");
-  const [priceFilter, setPriceFilter] = useState("all");
   const carouselRef = useRef();
   const navigate = useNavigate();
+  const [priceFilter, setPriceFilter] = useState("all");
 
   useEffect(() => {
     getAllCourses()
@@ -46,25 +45,14 @@ export default function GuestHome() {
       .finally(() => setLoading(false));
   }, []);
 
-  const filteredCourses = courses
-    .filter(course => {
-      const keyword = searchValue.trim().toLowerCase();
-      if (!keyword) return true;
-      return (
-        course.title?.toLowerCase().includes(keyword) ||
-        course.description?.toLowerCase().includes(keyword)
-      );
-    })
-    .filter(course => {
-      if (priceFilter === 'all') return true;
-      if (priceFilter === '0-500') return course.price >= 0 && course.price <= 500000;
-      if (priceFilter === '500-1m') return course.price > 500000 && course.price <= 1000000;
-      if (priceFilter === '1m+') return course.price > 1000000;
-      return true;
-    });
-    
-  const freeCourses = filteredCourses.filter((c) => c.price === 0);
-  const vipCourses = filteredCourses.filter((c) => c.price > 0);
+  // Lọc theo giá
+  const filteredCourses = courses.filter(course => {
+    if (priceFilter === 'all') return true;
+    if (priceFilter === '0-500') return course.price >= 0 && course.price <= 500000;
+    if (priceFilter === '500-1m') return course.price > 500000 && course.price <= 1000000;
+    if (priceFilter === '1m+') return course.price > 1000000;
+    return true;
+  });
 
   // Custom responsive grid
   const renderCourseGrid = (courseList) => (
@@ -183,18 +171,10 @@ export default function GuestHome() {
       </div>
       {/* Search bar và Sort dưới carousel */}
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 32, gap: 16 }}>
-        <Input.Search
-          placeholder="Tìm kiếm khoá học..."
-          allowClear
-          enterButton
-          value={searchValue}
-          onChange={e => setSearchValue(e.target.value)}
-          onSearch={v => setSearchValue(v)}
-          style={{ maxWidth: 400 }}
-        />
         <Select
           defaultValue="all"
           style={{ width: 180 }}
+          value={priceFilter}
           onChange={(value) => setPriceFilter(value)}
         >
           <Select.Option value="all">Tất cả mức giá</Select.Option>
@@ -213,10 +193,10 @@ export default function GuestHome() {
           <div style={{ textAlign: 'center', padding: '40px 0' }}>
             <Spin size="large" />
           </div>
-        ) : freeCourses.length === 0 ? (
+        ) : filteredCourses.filter((c) => c.price === 0).length === 0 ? (
           <Empty description="Chưa có khóa học miễn phí" style={{ margin: '32px 0' }} />
         ) : (
-          renderCourseGrid(freeCourses)
+          renderCourseGrid(filteredCourses.filter((c) => c.price === 0))
         )}
       </div>
 
@@ -229,10 +209,10 @@ export default function GuestHome() {
           <div style={{ textAlign: 'center', padding: '40px 0' }}>
             <Spin size="large" />
           </div>
-        ) : vipCourses.length === 0 ? (
+        ) : filteredCourses.filter((c) => c.price > 0).length === 0 ? (
           <Empty description="Chưa có khóa học VIP/Pro" style={{ margin: '32px 0' }} />
         ) : (
-          renderCourseGrid(vipCourses)
+          renderCourseGrid(filteredCourses.filter((c) => c.price > 0))
         )}
       </div>
     </div>

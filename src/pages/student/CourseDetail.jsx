@@ -91,6 +91,7 @@ export default function StudentCourseDetail() {
 
   const handleJoin = async () => {
     if (!user) {
+      //lưu đường dẫn sau khi login
       localStorage.setItem("redirectAfterLogin", `/student/courses/${courseId}`);
       navigate("/login");
       return;

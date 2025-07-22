@@ -38,7 +38,6 @@ export default function StudentHome() {
   const navigate = useNavigate();
   const location = useLocation();
   const carouselRef = useRef();
-  const [searchValue, setSearchValue] = useState("");
   const [priceFilter, setPriceFilter] = useState("all");
 
   // Lấy danh sách enrollment khi vào trang hoặc sau khi thanh toán thành công
@@ -65,6 +64,15 @@ export default function StudentHome() {
       .catch(() => setLoading(false));
     fetchEnrollments();
   }, []);
+
+  // Lọc theo giá
+  const filteredCourses = courses.filter(course => {
+    if (priceFilter === 'all') return true;
+    if (priceFilter === '0-500') return course.price >= 0 && course.price <= 500000;
+    if (priceFilter === '500-1m') return course.price > 500000 && course.price <= 1000000;
+    if (priceFilter === '1m+') return course.price > 1000000;
+    return true;
+  });
 
   // Khi bấm "Xem chi tiết"
   const handleView = (courseId) => {
@@ -115,27 +123,6 @@ export default function StudentHome() {
       message.error("Không thể thanh toán!");
     }
   };
-
-  // Lọc theo search và giá
-  const filteredCourses = courses
-    .filter(course => {
-      const keyword = searchValue.trim().toLowerCase();
-      if (!keyword) return true;
-      return (
-        course.title?.toLowerCase().includes(keyword) ||
-        course.description?.toLowerCase().includes(keyword)
-      );
-    })
-    .filter(course => {
-      if (priceFilter === 'all') return true;
-      if (priceFilter === '0-500') return course.price >= 0 && course.price <= 500000;
-      if (priceFilter === '500-1m') return course.price > 500000 && course.price <= 1000000;
-      if (priceFilter === '1m+') return course.price > 1000000;
-      return true;
-    });
-
-  const freeCourses = filteredCourses.filter((c) => c.price === 0);
-  const vipCourses = filteredCourses.filter((c) => c.price > 0);
 
   // Responsive grid: auto-fit cho mọi thiết bị
   const renderCourseGrid = (courseList) => (
@@ -257,18 +244,10 @@ export default function StudentHome() {
       </div>
       {/* Search bar và Sort dưới carousel */}
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 32, gap: 16 }}>
-        <Input.Search
-          placeholder="Tìm kiếm khoá học..."
-          allowClear
-          enterButton
-          value={searchValue}
-          onChange={e => setSearchValue(e.target.value)}
-          onSearch={v => setSearchValue(v)}
-          style={{ maxWidth: 400 }}
-        />
         <Select
           defaultValue="all"
           style={{ width: 180 }}
+          value={priceFilter}
           onChange={(value) => setPriceFilter(value)}
         >
           <Select.Option value="all">Tất cả mức giá</Select.Option>
@@ -287,10 +266,10 @@ export default function StudentHome() {
           <div style={{ textAlign: 'center', padding: '40px 0' }}>
             <Spin size="large" />
           </div>
-        ) : freeCourses.length === 0 ? (
+        ) : filteredCourses.filter((c) => c.price === 0).length === 0 ? (
           <Empty description="Chưa có khóa học miễn phí" style={{ margin: '32px 0' }} />
         ) : (
-          renderCourseGrid(freeCourses)
+          renderCourseGrid(filteredCourses.filter((c) => c.price === 0))
         )}
       </div>
 
@@ -303,10 +282,10 @@ export default function StudentHome() {
           <div style={{ textAlign: 'center', padding: '40px 0' }}>
             <Spin size="large" />
           </div>
-        ) : vipCourses.length === 0 ? (
+        ) : filteredCourses.filter((c) => c.price > 0).length === 0 ? (
           <Empty description="Chưa có khóa học VIP" style={{ margin: '32px 0' }} />
         ) : (
-          renderCourseGrid(vipCourses)
+          renderCourseGrid(filteredCourses.filter((c) => c.price > 0))
         )}
       </div>
     </div>
