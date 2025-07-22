@@ -4,6 +4,13 @@ const API_KEY = "sk-C4wNtPDOw2GmaZMf4723A75f58Cd48139b1477CeE40f0867"; // <-- Th
 const BASE_URL = "https://api.sv2.llm.ai.vn/v1/chat/completions";
 const MODEL_NAME = "openai:gpt-4.1";
 
+// System prompt giúp AI hiểu rõ về dự án và phạm vi hỗ trợ
+const SYSTEM_PROMPT = {
+  role: "system",
+  content:
+    "Bạn là Trợ lý AI của nền tảng F5-Online-Learning, chuyên hỗ trợ học viên, giáo viên và quản trị viên về các vấn đề liên quan đến khóa học, bài học, tiến trình học tập, kỹ năng lập trình, công nghệ, kỹ năng mềm và các chức năng của hệ thống. Nếu nhận được câu hỏi không liên quan đến học tập, giáo dục, công nghệ hoặc nền tảng này, hãy từ chối một cách lịch sự và hướng người dùng về chủ đề phù hợp."
+};
+
 function escapeJson(input) {
   return input.replace(/"/g, '\\"').replace(/\n/g, "\\n");
 }
@@ -21,7 +28,7 @@ function extractMessageContent(json) {
 
 const ChatBox = ({ onClose }) => {
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: 'Xin chào! Tôi là Trợ lý AI, bạn cần hỗ trợ gì?' }
+    { role: 'assistant', content: 'Xin chào! Tôi là Trợ lý AI của F5-Online-Learning, bạn cần hỗ trợ gì về học tập, khóa học, kỹ năng hay hệ thống?' }
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -34,10 +41,13 @@ const ChatBox = ({ onClose }) => {
     setMessages((prev) => [...prev, userMsg]);
     setLoading(true);
     try {
+      // Lấy tối đa 8 message gần nhất để giữ ngữ cảnh gọn
+      const recentMessages = messages.slice(-8).map((m) => ({ role: m.role, content: m.content }));
       const payload = {
         model: MODEL_NAME,
         messages: [
-          ...messages.map((m) => ({ role: m.role, content: m.content })),
+          SYSTEM_PROMPT,
+          ...recentMessages,
           { role: 'user', content: input }
         ],
         max_tokens: 300
