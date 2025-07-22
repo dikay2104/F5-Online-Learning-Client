@@ -15,4 +15,9 @@ export const getMyCertificates = () =>
 export const getCertificateById = (certificateId) =>
   axios.get(`${API}/${certificateId}`, {
     headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+  });
+
+export const editCertificateName = (certificateId, newName) =>
+  axios.post(`${API}/${certificateId}/edit-name`, { newName }, {
+    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
   }); 
