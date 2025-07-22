@@ -31,6 +31,7 @@ export default function Sidebar() {
     { key: '/student/home', icon: <AppstoreOutlined />, label: 'Home' },
     { key: '/my-courses', icon: <BookOutlined />, label: 'My Courses' },
     { key: '/progress', icon: <LineChartOutlined />, label: 'Progress' },
+    { key: '/quiz', icon: <PlayCircleOutlined />, label: 'Quiz' },
     //{ key: '/lessons', icon: <PlayCircleOutlined />, label: 'Lessons' },
     commonAboutItem,
   ];
