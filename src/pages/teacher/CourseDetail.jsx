@@ -21,6 +21,8 @@ import { ClockCircleOutlined } from "@ant-design/icons";
 import { getLessonsByCourse } from "../../services/lessonService";
 import {
   getCourseById,
+  approveCourse,
+  rejectCourse,
 } from "../../services/courseService";
 import { getCollectionsByCourse } from "../../services/collectionService";
 import { getFeedbacksByCourse } from "../../services/feedbackService";
@@ -200,7 +202,13 @@ export default function CourseDetailPage() {
                     type="primary"
                     style={{ marginRight: 8 }}
                     onClick={async () => {
-                      await window.location.reload();
+                      try {
+                        await approveCourse(localStorage.getItem("token"), course._id);
+                        message.success("Đã duyệt khóa học");
+                        window.location.reload();
+                      } catch (err) {
+                        message.error("Duyệt khóa học thất bại");
+                      }
                     }}
                   >
                     Duyệt
@@ -208,7 +216,13 @@ export default function CourseDetailPage() {
                   <Button
                     danger
                     onClick={async () => {
-                      await window.location.reload();
+                      try {
+                        await rejectCourse(localStorage.getItem("token"), course._id);
+                        message.success("Đã từ chối khóa học");
+                        window.location.reload();
+                      } catch (err) {
+                        message.error("Từ chối khóa học thất bại");
+                      }
                     }}
                   >
                     Từ chối
