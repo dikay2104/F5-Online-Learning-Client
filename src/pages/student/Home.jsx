@@ -40,6 +40,8 @@ export default function StudentHome() {
   const carouselRef = useRef();
   const [searchValue, setSearchValue] = useState("");
   const [priceFilter, setPriceFilter] = useState("all");
+  const [levelFilter, setLevelFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
 
   // Lấy danh sách enrollment khi vào trang hoặc sau khi thanh toán thành công
   const fetchEnrollments = async () => {
@@ -132,6 +134,14 @@ export default function StudentHome() {
       if (priceFilter === '500-1m') return course.price > 500000 && course.price <= 1000000;
       if (priceFilter === '1m+') return course.price > 1000000;
       return true;
+    })
+    .filter(course => {
+      if (levelFilter === 'all') return true;
+      return course.level === levelFilter;
+    })
+    .filter(course => {
+      if (categoryFilter === 'all') return true;
+      return course.category?.toLowerCase() === categoryFilter;
     });
 
   const freeCourses = filteredCourses.filter((c) => c.price === 0);
@@ -256,7 +266,7 @@ export default function StudentHome() {
         </Carousel>
       </div>
       {/* Search bar và Sort dưới carousel */}
-      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 32, gap: 16 }}>
+      <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', marginBottom: 32, gap: 16 }}>
         <Input.Search
           placeholder="Tìm kiếm khoá học..."
           allowClear
@@ -275,6 +285,26 @@ export default function StudentHome() {
           <Select.Option value="0-500">0 - 500.000đ</Select.Option>
           <Select.Option value="500-1m">500.000đ - 1 triệu</Select.Option>
           <Select.Option value="1m+">Trên 1 triệu</Select.Option>
+        </Select>
+        <Select
+          defaultValue="all"
+          style={{ width: 180 }}
+          onChange={(value) => setLevelFilter(value)}
+        >
+          <Select.Option value="all">Tất cả cấp độ</Select.Option>
+          <Select.Option value="beginner">Beginner</Select.Option>
+          <Select.Option value="intermediate">Intermediate</Select.Option>
+          <Select.Option value="advanced">Advanced</Select.Option>
+        </Select>
+        <Select
+          defaultValue="all"
+          style={{ width: 180 }}
+          onChange={(value) => setCategoryFilter(value)}
+        >
+          <Select.Option value="all">Tất cả danh mục</Select.Option>
+          <Select.Option value="programming">Programming</Select.Option>
+          <Select.Option value="business">Business</Select.Option>
+          <Select.Option value="design">Design</Select.Option>
         </Select>
       </div>
 
