@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { getCertificateById } from '../services/certificateService';
-import { Card, Spin, Button, Typography, message } from 'antd';
+import { Card, Spin, Button, Typography, message, Input, Modal } from 'antd';
 import html2canvas from 'html2canvas';
+import { editCertificateName } from '../services/certificateService';
 
 const { Title } = Typography;
 
@@ -11,6 +12,9 @@ export default function CertificatePage() {
   const [certificate, setCertificate] = useState(null);
   const [loading, setLoading] = useState(true);
   const certRef = useRef();
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [editLoading, setEditLoading] = useState(false);
 
   useEffect(() => {
     console.log('CertificatePage: certificateId =', certificateId);
@@ -33,6 +37,20 @@ export default function CertificatePage() {
     link.download = 'certificate.png';
     link.href = canvas.toDataURL();
     link.click();
+  };
+
+  const handleEditName = async () => {
+    setEditLoading(true);
+    try {
+      const res = await editCertificateName(certificate.certificateId, newName);
+      setCertificate(res.data.data);
+      setEditModalOpen(false);
+      message.success('Đã đổi tên trên chứng chỉ thành công!');
+    } catch (err) {
+      message.error(err.response?.data?.message || 'Đổi tên thất bại!');
+    } finally {
+      setEditLoading(false);
+    }
   };
 
   if (loading) return <Spin style={{ margin: 40 }} />;
@@ -86,9 +104,41 @@ export default function CertificatePage() {
             Certificate ID: <b>{certificate.certificateId}</b>
           </div>
         </div>
-        <div style={{ textAlign: 'center', marginTop: 32 }}>
+        <div style={{ textAlign: 'center', marginTop: 32, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
           <Button type="primary" onClick={handleDownload}>Tải về ảnh chứng chỉ</Button>
+          {certificate.allowEditName && (
+            <Button onClick={() => { setNewName(certificate.fullName || ''); setEditModalOpen(true); }}>
+              Sửa tên trên chứng chỉ
+            </Button>
+          )}
+          <Button
+            style={{ background: "#1877f3", color: "#fff", border: "none" }}
+            onClick={() => {
+              const shareUrl = window.location.href;
+              window.open(
+                `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
+                "_blank",
+                "width=600,height=400"
+              );
+            }}
+          >
+            Chia sẻ lên Facebook
+          </Button>
         </div>
+        <Modal
+          open={editModalOpen}
+          onCancel={() => setEditModalOpen(false)}
+          onOk={handleEditName}
+          confirmLoading={editLoading}
+          title="Chỉnh sửa tên trên chứng chỉ"
+          okText="Lưu"
+          cancelText="Hủy"
+        >
+          <Input value={newName} onChange={e => setNewName(e.target.value)} maxLength={50} />
+          <div style={{ marginTop: 8, color: '#888', fontSize: 13 }}>
+            * Bạn chỉ được đổi tên trên chứng chỉ <b>1 lần duy nhất</b>. Hãy nhập đúng họ tên thật để nhận chứng chỉ hợp lệ.
+          </div>
+        </Modal>
       </div>
     </div>
   );
