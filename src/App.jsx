@@ -27,6 +27,8 @@ import UploadForm from './pages/uploadForm';
 import StatisticPage from './pages/teacher/StatisticPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import ChatBox from './components/ChatBox';
+import React from 'react';
 
 
 function PrivateRoute({ element }) {
@@ -38,6 +40,8 @@ function PrivateRoute({ element }) {
 }
 
 export default function App() {
+  const [showChat, setShowChat] = React.useState(false);
+
   return (
     <GoogleOAuthProvider clientId="1081206935169-5b954akmr843ijk42rn7libq54jflbir.apps.googleusercontent.com">
       <AuthProvider>
@@ -88,6 +92,21 @@ export default function App() {
           </Layout>
         </BrowserRouter>
       </AuthProvider>
+
+      {/* ChatBox nổi góc phải dưới */}
+      <div style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 9999 }}>
+        {showChat ? (
+          <ChatBox onClose={() => setShowChat(false)} />
+        ) : (
+          <button
+            onClick={() => setShowChat(true)}
+            style={{ borderRadius: '50%', width: 56, height: 56, background: '#0d6efd', color: '#fff', border: 'none', fontSize: 28, boxShadow: '0 2px 8px #aaa', cursor: 'pointer' }}
+            title="Chat với AI"
+          >
+            💬
+          </button>
+        )}
+      </div>
     </GoogleOAuthProvider>
   );
 }
