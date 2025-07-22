@@ -243,7 +243,7 @@ export default function CollectionManager({
           </Form.Item>
           <Form.Item
             name="videoUrl"
-            label="Video URL"
+            label="Video URL (Youtube)"
             rules={[{ required: true, message: 'Vui lòng nhập URL video' }]}
           >
             <Input />
