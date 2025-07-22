@@ -231,7 +231,7 @@ export default function CourseDetailPage() {
               )}
             </Card>
           )}
-
+ 
           {user?.role === 'teacher' && user?._id === course?.teacher?._id && (
             <Button
               type="primary"
