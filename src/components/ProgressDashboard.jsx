@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Row, Col, Statistic, Progress, List, Avatar, Tag, Spin, Empty } from 'antd';
+import { Card, Row, Col, Statistic, Progress, List, Avatar, Tag, Spin, Empty, Button } from 'antd';
 import { 
   BookOutlined, 
   PlayCircleOutlined, 
@@ -11,14 +11,24 @@ import {
 import { getUserProgress, formatTime } from '../services/progressService';
 import { getMyEnrollments } from '../services/enrollmentService';
 import { getLessonsByCourse } from '../services/lessonService';
+import { issueCertificate } from '../services/certificateService';
+import { getMyCertificates } from '../services/certificateService';
+import { message } from 'antd';
+import { useNavigate } from 'react-router-dom';
 
 const ProgressDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [progressData, setProgressData] = useState(null);
   const [recentCourses, setRecentCourses] = useState([]);
+  const [issuedCourses, setIssuedCourses] = useState([]);
 
   useEffect(() => {
     loadProgressData();
+    // Lấy danh sách certificate đã nhận
+    getMyCertificates().then(res => {
+      const courseIds = (res.data.data || []).map(cert => cert.course && (cert.course._id || cert.course));
+      setIssuedCourses(courseIds);
+    });
   }, []);
 
   const loadProgressData = async () => {
@@ -89,6 +99,25 @@ const ProgressDashboard = () => {
       console.error('Lỗi khi tải dữ liệu tiến độ:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const navigate = useNavigate();
+
+  const handleIssueCertificate = async (courseId) => {
+    try {
+      const res = await issueCertificate(courseId);
+      message.success(res.data.message || 'Đã nhận chứng chỉ thành công!');
+      // Cập nhật issuedCourses bằng cách gọi lại getMyCertificates
+      getMyCertificates().then(res2 => {
+        const courseIds = (res2.data.data || []).map(cert => cert.course && (cert.course._id || cert.course));
+        setIssuedCourses(courseIds);
+      });
+      if (res.data.data && res.data.data.certificateId) {
+        window.open(`/certificate/${res.data.data.certificateId}`, '_blank');
+      }
+    } catch (err) {
+      message.error(err.response?.data?.message || 'Không thể nhận chứng chỉ!');
     }
   };
 
@@ -183,9 +212,29 @@ const ProgressDashboard = () => {
             renderItem={(courseData) => (
               <List.Item
                 actions={[
-                  <Tag color={courseData.progressPercent >= 100 ? "success" : "processing"}>
+                  <Tag color={courseData.progressPercent >= 100 ? "success" : courseData.progressPercent >= 90 ? "blue" : "processing"}>
                     {courseData.progressPercent}% hoàn thành
-                  </Tag>
+                  </Tag>,
+                  <Button
+                    type="primary"
+                    disabled={courseData.progressPercent < 90}
+                    onClick={() => {
+                      if (issuedCourses.includes(courseData.course._id)) {
+                        getMyCertificates().then(res => {
+                          const cert = (res.data.data || []).find(cert => (cert.course && (cert.course._id || cert.course)) === courseData.course._id);
+                          if (cert && cert.certificateId) {
+                            window.open(`/certificate/${cert.certificateId}`, '_blank');
+                          } else {
+                            message.error('Không tìm thấy chứng chỉ!');
+                          }
+                        });
+                      } else {
+                        handleIssueCertificate(courseData.course._id);
+                      }
+                    }}
+                  >
+                    {issuedCourses.includes(courseData.course._id) ? 'Xem chứng chỉ' : 'Nhận certificate'}
+                  </Button>
                 ]}
               >
                 <List.Item.Meta
@@ -213,7 +262,7 @@ const ProgressDashboard = () => {
                         percent={courseData.progressPercent} 
                         size="small" 
                         style={{ marginTop: '8px' }}
-                        strokeColor={courseData.progressPercent >= 100 ? "#52c41a" : "#1890ff"}
+                        strokeColor={courseData.progressPercent >= 100 ? "#52c41a" : courseData.progressPercent >= 90 ? "#1890ff" : "#1890ff"}
                       />
                     </div>
                   }

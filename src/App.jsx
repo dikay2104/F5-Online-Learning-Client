@@ -29,7 +29,7 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import ChatBox from './components/ChatBox';
 import React from 'react';
-import QuizPage from './pages/QuizPage';
+import CertificatePage from './pages/CertificatePage';
 
 
 function PrivateRoute({ element }) {
@@ -76,7 +76,8 @@ export default function App() {
                 <Route path="/student/courses/:courseId" element={<StudentCourseDetail />} />
                 <Route path="/payment/callback" element={<PaymentCallback />} />
                 <Route path="/student/lessons/:lessonId" element={<LessonLearn />} />
-                <Route path="/quiz" element={<QuizPage />} />
+                <Route path="/certificate/:certificateId" element={<CertificatePage />} />
+             
 
                 {/* Route cho user profile */}
                 <Route path="/profile" element={<PrivateRoute element={<Profile />} />} />
