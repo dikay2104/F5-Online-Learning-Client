@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Row, Col, Card, Statistic, Spin, message } from "antd";
 import { getAdminSummary } from "../../services/adminService";
+import AdminRevenueChart from "../../components/AdminRevenueChart";
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
@@ -76,6 +77,8 @@ const AdminDashboard = () => {
           </Card>
         </Col>
       </Row>
+      {/* Thêm chart doanh thu */}
+      <AdminRevenueChart />
     </div>
   );
 };
