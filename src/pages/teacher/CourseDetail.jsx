@@ -202,8 +202,13 @@ export default function CourseDetailPage() {
                     type="primary"
                     style={{ marginRight: 8 }}
                     onClick={async () => {
-                      await approveCourse(courseId);
-                      window.location.reload();
+                      try {
+                        await approveCourse(localStorage.getItem("token"), course._id);
+                        message.success("Đã duyệt khóa học");
+                        window.location.reload();
+                      } catch (err) {
+                        message.error("Duyệt khóa học thất bại");
+                      }
                     }}
                   >
                     Duyệt
@@ -211,8 +216,13 @@ export default function CourseDetailPage() {
                   <Button
                     danger
                     onClick={async () => {
-                      await rejectCourse(courseId);
-                      window.location.reload();
+                      try {
+                        await rejectCourse(localStorage.getItem("token"), course._id);
+                        message.success("Đã từ chối khóa học");
+                        window.location.reload();
+                      } catch (err) {
+                        message.error("Từ chối khóa học thất bại");
+                      }
                     }}
                   >
                     Từ chối
@@ -222,14 +232,14 @@ export default function CourseDetailPage() {
             </Card>
           )}
 
-          {user?.role === 'teacher' && user?._id === course?.teacher?._id && (
+          {/* {user?.role === 'teacher' && user?._id === course?.teacher?._id && ( */}
             <Button
               type="primary"
               onClick={() => navigate(`/courses/${courseId}/edit`)}
             >
               Chỉnh sửa khóa học
             </Button>
-          )}
+          {/* )} */}
         </Space>
       </Card>
 
@@ -341,7 +351,7 @@ export default function CourseDetailPage() {
                         <Button
                           type="link"
                           onClick={() =>
-                            navigate(`/lessons/${lesson._id}/edit`)
+                            navigate(`/courses/${courseId}/edit`)
                           }
                         >
                           Chỉnh sửa

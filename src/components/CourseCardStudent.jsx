@@ -1,11 +1,13 @@
 import { Card, Avatar, Tag, Button, Space, Typography } from 'antd';
 import { UserOutlined, ClockCircleOutlined, DollarOutlined, BookOutlined } from '@ant-design/icons';
 import thumbnailFallback from '../assets/thumbnail.jpg';
+import { useState } from 'react';
+import { Modal } from 'antd';
 
 const { Meta } = Card;
 const { Text, Title } = Typography;
 
-export default function CourseCardStudent({ course, onView, isEnrolled }) {
+export default function CourseCardStudent({ course, onView, isEnrolled, onJoin, onPay }) {
   const {
     title, description, price, thumbnail, level, category, duration, studentsCount, teacher,
   } = course;
@@ -20,13 +22,7 @@ export default function CourseCardStudent({ course, onView, isEnrolled }) {
           style={{ width: '100%', height: 200, objectFit: 'cover', display: 'block', borderTopLeftRadius: 12, borderTopRightRadius: 12 }}
         />
       }
-      actions={[
-        isEnrolled ? (
-          <Button type="default" disabled>Đã tham gia</Button>
-        ) : (
-          <Button type="primary" onClick={onView}>Xem chi tiết</Button>
-        )
-      ]}
+      onClick={onView}
       style={{
         minWidth: 260,
         maxWidth: 340,
@@ -38,6 +34,7 @@ export default function CourseCardStudent({ course, onView, isEnrolled }) {
         boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
         transition: 'all 0.3s ease',
         overflow: 'hidden',
+        cursor: 'pointer',
       }}
       bodyStyle={{
         flex: 1,

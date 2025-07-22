@@ -1,7 +1,9 @@
-import { Button, Form, Input, message } from 'antd';
+import { Button, Form, Input, message, Divider } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../../services/authService';
 import { useAuth } from '../../context/authContext';
+import { GoogleLogin } from '@react-oauth/google';
+import { GoogleOutlined, FacebookFilled } from '@ant-design/icons'
 
 export default function Login() {
   const navigate = useNavigate();
@@ -36,6 +38,52 @@ export default function Login() {
     }
   };
 
+  const handleGoogleLogin = async (credentialResponse) => {
+    const token = credentialResponse?.credential;
+    if (!token) {
+      return message.error('Token không hợp lệ từ Google');
+    }
+
+    try {
+      const res = await login({ type: 'google', token });
+      localStorage.setItem('token', res.data.token);
+      localStorage.setItem('user', JSON.stringify(res.data.user));
+      setUser(res.data.user);
+      message.success('Login with Google successful');
+      navigateAfterLogin(res.data.user);
+    } catch (err) {
+      message.error(err.response?.data?.message || 'Google login failed');
+    }
+  };
+
+
+  const navigateAfterLogin = (user) => {
+    const redirect = localStorage.getItem('redirectAfterLogin');
+    if (redirect) {
+      localStorage.removeItem('redirectAfterLogin');
+      navigate(redirect);
+    } else {
+      if (user.role === 'student') navigate('/student/home');
+      else if (user.role === 'teacher') navigate('/my-courses');
+      else if (user.role === 'admin') navigate('/admin');
+      else navigate('/');
+    }
+  };
+
+  const handleFacebookLogin = async (token) => {
+    try {
+      const res = await login({ type: 'facebook', token });
+      localStorage.setItem('token', res.data.token);
+      localStorage.setItem('user', JSON.stringify(res.data.user));
+      setUser(res.data.user);
+      message.success('Login with Facebook successful');
+      navigateAfterLogin(res.data.user);
+    } catch (err) {
+      console.error("❌ Facebook login error", err.response);
+      message.error(err.response?.data?.message || 'Facebook login failed');
+    }
+  };
+
   return (
     <div style={{ maxWidth: 400, width: '100%', margin: 'auto', marginTop: 100 }}>
       <h2>Login</h2>
@@ -48,6 +96,40 @@ export default function Login() {
         </Form.Item>
         <Button type="primary" htmlType="submit" block>Login</Button>
       </Form>
+
+      <Divider plain>Hoặc đăng nhập bằng</Divider>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <GoogleLogin
+            onSuccess={handleGoogleLogin}
+            onError={() => message.error('Google login failed')}
+            size="large"
+            width="100%"
+          />
+        </div>
+
+        <Button
+          icon={<FacebookFilled />}
+          style={{ backgroundColor: '#1877F2', color: 'white' }}
+          block
+          onClick={() => {
+            window.FB.login(
+              (response) => {
+                if (response.authResponse) {
+                  const { accessToken } = response.authResponse;
+                  handleFacebookLogin(accessToken);
+                } else {
+                  message.error('Facebook login bị hủy hoặc lỗi');
+                }
+              },
+              { scope: 'email' }
+            );
+          }}
+        >
+          Đăng nhập bằng Facebook
+        </Button>
+      </div>
     </div>
   );
 }

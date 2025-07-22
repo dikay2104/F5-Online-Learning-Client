@@ -35,7 +35,7 @@ export default function ManageCourses() {
 
   const handleApprove = async (id) => {
     try {
-      await approveCourse(id);
+      await approveCourse(localStorage.getItem("token"), id);
       message.success("Đã duyệt khóa học");
       setDetailModalOpen(false);
       fetchCourses();
@@ -46,7 +46,7 @@ export default function ManageCourses() {
 
   const handleReject = async (id) => {
     try {
-      await rejectCourse(id);
+      await rejectCourse(localStorage.getItem("token"), id);
       message.success("Đã từ chối khóa học");
       setDetailModalOpen(false);
       fetchCourses();
@@ -71,9 +71,21 @@ export default function ManageCourses() {
       title: "Hành động",
       key: "action",
       render: (_, record) => (
-        <Button type="link" onClick={() => navigate(`/courses/${record._id}`)}>
-          Xem chi tiết
-        </Button>
+        <>
+          <Button type="link" onClick={() => navigate(`/courses/${record._id}`)}>
+            Xem chi tiết
+          </Button>
+          {record.status === "pending" && (
+            <>
+              <Button type="primary" style={{ marginLeft: 8 }} onClick={() => handleApprove(record._id)}>
+                Duyệt
+              </Button>
+              <Button danger style={{ marginLeft: 8 }} onClick={() => handleReject(record._id)}>
+                Từ chối
+              </Button>
+            </>
+          )}
+        </>
       )
     },
   ];

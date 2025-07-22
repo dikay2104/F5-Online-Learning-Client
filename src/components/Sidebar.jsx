@@ -31,7 +31,7 @@ export default function Sidebar() {
     { key: '/student/home', icon: <AppstoreOutlined />, label: 'Home' },
     { key: '/my-courses', icon: <BookOutlined />, label: 'My Courses' },
     { key: '/progress', icon: <LineChartOutlined />, label: 'Progress' },
-    { key: '/lessons', icon: <PlayCircleOutlined />, label: 'Lessons' },
+    //{ key: '/lessons', icon: <PlayCircleOutlined />, label: 'Lessons' },
     commonAboutItem,
   ];
 
@@ -39,7 +39,7 @@ export default function Sidebar() {
     commonHomeItem,
     { key: '/my-courses', icon: <BookOutlined />, label: 'My Courses' },
     { key: '/feedback', icon: <MessageOutlined />, label: 'Feedback' },
-    { key: '/students', icon: <UsergroupAddOutlined />, label: 'Students' },
+    { key: '/my-courses/statistic', icon: <UsergroupAddOutlined />, label: 'Statistic' },
     commonAboutItem,
   ];
 
@@ -58,7 +58,32 @@ export default function Sidebar() {
     commonAboutItem,
   ];
 
-  const handleClick = (e) => {
+  const handleClick = async (e) => {
+    // Nếu là student và click vào Lessons
+    if (user?.role === 'student' && e.key === '/lessons') {
+      const courseId = localStorage.getItem('currentCourseId');
+      if (courseId) {
+        try {
+          // Lấy danh sách lessons của course hiện tại
+          const res = await import('../services/lessonService');
+          const lessonsRes = await res.getLessonsByCourse(courseId);
+          const lessons = lessonsRes.data.data;
+          if (lessons && lessons.length > 0) {
+            // Navigate đến bài học đầu tiên
+            navigate(`/student/lessons/${lessons[0]._id}`);
+          } else {
+            // Nếu không có lesson nào, về trang khóa học
+            navigate('/my-courses');
+          }
+        } catch {
+          navigate('/my-courses');
+        }
+      } else {
+        navigate('/my-courses');
+      }
+      return;
+    }
+    // Mặc định
     navigate(e.key);
   };
 

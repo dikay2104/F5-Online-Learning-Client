@@ -15,8 +15,8 @@ import {
   likeComment,
   replyComment
 } from '../../services/commentService';
-const { Title } = Typography;
 import { UserOutlined, ClockCircleOutlined, PlayCircleOutlined } from '@ant-design/icons';
+import VideoPlayer from '../../components/VideoPlayer';
 
 const { Title, Text } = AntdTypography;
 const { Panel } = Collapse;
@@ -69,7 +69,11 @@ export default function LessonLearn() {
     async function fetchData() {
       setLoading(true);
       const courseId = localStorage.getItem('currentCourseId');
-      if (!courseId) return;
+      if (!courseId) {
+        console.log('Không tìm thấy currentCourseId trong localStorage');
+        setLoading(false);
+        return;
+      }
       const token = localStorage.getItem('token');
       try {
         const courseRes = await getCourseById(courseId, token);
@@ -348,31 +352,31 @@ export default function LessonLearn() {
     });
   }
 
-  if (loading || !lesson) return <Spin size="large" style={{ display: 'flex', justifyContent: 'center', marginTop: 48 }} />;
+  if (loading) return <Spin size="large" style={{ display: 'flex', justifyContent: 'center', marginTop: 48 }} />;
+  if (!lesson) {
+    return (
+      <div style={{ padding: 48, textAlign: 'center', color: 'red', fontWeight: 600 }}>
+        Không tìm thấy bài học với lessonId: {lessonId}.<br/>
+        Vui lòng kiểm tra lại đường dẫn hoặc liên hệ quản trị viên.<br/>
+        <span style={{ color: '#888', fontWeight: 400 }}>Kiểm tra console để biết thêm chi tiết.</span>
+      </div>
+    );
+  }
 
   const currentIdx = lessons.findIndex(l => l._id === lessonId);
   const prevLesson = lessons[currentIdx - 1];
   const nextLesson = lessons[currentIdx + 1];
 
   return (
-    <div style={{ display: 'flex' }}>
+    <div style={{ display: 'flex', height: '100%' }}>
       {/* Video + nội dung */}
       <div style={{ flex: 2, padding: 32, background: '#fff' }}>
         <Card style={{ marginBottom: 24 }}>
-          {lesson.videoUrl && getVideoEmbedUrl(lesson.videoUrl) ? (
-            <iframe
-              width="100%"
-              height="400"
-              src={getVideoEmbedUrl(lesson.videoUrl)}
-              title={lesson.title}
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            ></iframe>
+          {lesson.videoUrl ? (
+            <VideoPlayer lesson={lesson} courseId={course?._id} />
           ) : (
             <div>Không có video cho bài học này.</div>
           )}
-          <h2 style={{ marginTop: 16 }}>{lesson.title}</h2>
           <div style={{ color: '#888', marginBottom: 8 }}>{lesson.description}</div>
           <div>
             <Button disabled={!prevLesson} onClick={() => prevLesson && navigate(`/student/lessons/${prevLesson._id}`)}>
