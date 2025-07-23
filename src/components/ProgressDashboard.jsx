@@ -45,7 +45,9 @@ const ProgressDashboard = () => {
       // Map progress theo lessonId
       const progressMap = new Map();
       data.progresses.forEach(progress => {
-        progressMap.set(progress.lesson._id, progress);
+        if (progress.lesson && progress.lesson._id) {
+          progressMap.set(progress.lesson._id, progress);
+        }
       });
 
       // Lấy danh sách bài học cho từng khóa học
@@ -94,6 +96,7 @@ const ProgressDashboard = () => {
 
       // Sắp xếp theo số lượng bài học đã hoàn thành gần nhất
       coursesWithProgress.sort((a, b) => b.completedLessons - a.completedLessons);
+      console.log("📊 Courses with progress:", coursesWithProgress);
       setRecentCourses(coursesWithProgress.slice(0, 5));
     } catch (error) {
       console.error('Lỗi khi tải dữ liệu tiến độ:', error);
@@ -288,6 +291,9 @@ const ProgressDashboard = () => {
               .slice(0, 10)
             }
             renderItem={(progress) => {
+              if (!progress.lesson) {
+                return null; // bỏ qua nếu không có dữ liệu bài học
+              }
               const progressPercent = progress.videoDuration > 0 
                 ? Math.min((progress.watchedSeconds / progress.videoDuration) * 100, 100)
                 : 0;

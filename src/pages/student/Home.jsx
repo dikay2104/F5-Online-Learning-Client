@@ -21,7 +21,7 @@ const slides = [
   {
     title: 'Cộng đồng hỗ trợ 24/7',
     desc: 'Tham gia group học tập, hỏi đáp, chia sẻ kinh nghiệm cùng hàng ngàn học viên.',
-    img: 'https://images.unsplash.com/photo-1503676382389-47ba0277781c?auto=format&fit=crop&w=800&q=80',
+    img: 'https://images.unsplash.com/photo-1503676382389-4809596d5290?auto=format&fit=crop&w=800&q=80',
   },
   {
     title: 'Nâng cấp sự nghiệp IT',

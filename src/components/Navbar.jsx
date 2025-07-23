@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Menu, Dropdown, Avatar, Badge, Modal, List, Button, message, Spin } from 'antd';
 import { UserOutlined, SettingOutlined, LogoutOutlined, BellOutlined, DeleteOutlined, CheckOutlined} from '@ant-design/icons';
 import { useAuth } from '../context/authContext';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import {
   getNotifications,
   markAsRead,
@@ -37,16 +37,21 @@ export default function Navbar() {
     }
   }, [token]);
 
+  const hasJoinedRef = useRef(false);
+
   useEffect(() => {
-    if (user?._id) {
+    if (user?._id && socket.connected && !hasJoinedRef.current) {
+      console.log("🔗 Joining socket room with userId:", user._id);
       socket.emit('join', user._id);
-      fetchNotifications();
+      hasJoinedRef.current = true;
     }
-  }, [user, fetchNotifications]);
+  }, [user, socket.connected]);
 
   const handleMarkAsRead = async (id) => {
     await markAsRead(token, id);
-    fetchNotifications();
+    setNotifications((prev) =>
+      prev.map((n) => (n._id === id ? { ...n, isRead: true } : n))
+    );
   };
 
   const handleDelete = async (id) => {
@@ -56,7 +61,9 @@ export default function Navbar() {
 
   const handleMarkAllAsRead = async () => {
     await markAllAsRead(token);
-    fetchNotifications();
+    setNotifications((prev) =>
+      prev.map((n) => ({ ...n, isRead: true }))
+    );
   };
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
@@ -64,8 +71,18 @@ export default function Navbar() {
   // Lắng nghe socket khi có thông báo mới
   useEffect(() => {
     const handleNewNotification = (data) => {
+      console.log("📨 New notification received", data);
       message.info(data.message);
-      fetchNotifications();
+
+      // Thêm thông báo mới vào đầu danh sách
+      setNotifications((prev) => [
+        {
+          ...data, // server nên gửi đủ message, _id, createdAt, read=false, etc.
+          isRead: false,
+          createdAt: new Date(), // nếu chưa có createdAt thì tạo mới
+        },
+        ...prev,
+      ]);
     };
 
     socket.on('new_notification', handleNewNotification);
@@ -73,7 +90,7 @@ export default function Navbar() {
     return () => {
       socket.off('new_notification', handleNewNotification);
     };
-  }, [fetchNotifications]);
+  }, []);
 
   // Khi mở modal thì fetch thông báo
   useEffect(() => {
@@ -212,7 +229,7 @@ export default function Navbar() {
                 }}
                 actions={[
                   <div style={{ display: 'flex', gap: 8 }}>
-                    {!item.read && (
+                    {!item.isRead && (
                       <Button
                         icon={<CheckOutlined />}
                         size="small"
