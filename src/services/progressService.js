@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API = process.env.REACT_APP_API_URL || 'http://localhost:3001/api/progress';
+const API = process.env.REACT_APP_API_BASE_URL + '/progress' || 'http://localhost:3001/api/progress';
 
 // Lưu tiến độ xem video
 export const saveProgress = (lessonId, data) => {

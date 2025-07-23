@@ -91,6 +91,14 @@ export function useCourseForm() {
         return;
       }
 
+      // Cập nhật thứ tự lessons trước khi lưu
+      const updates = lessons.map((lesson, index) => ({
+        lessonId: lesson._id,
+        order: index,
+        collection: lesson.collection,
+      }));
+      await reorderLessons(token, updates);
+
       const courseData = {
         ...values,
         thumbnail: thumbnailUrl,
@@ -161,21 +169,34 @@ export function useCourseForm() {
         return;
       }
 
+      // Tính giá trị order cho lesson mới
+      const collectionId = values.collection || null;
+      const collectionLessons = lessons.filter(l => l.collection === collectionId);
+      const maxOrder = collectionLessons.length > 0 
+        ? Math.max(...collectionLessons.map(l => l.order || 0)) + 1 
+        : 0;
+
       const payload = {
         ...values,
         course: courseId,
-        collection: values.collection || null,
+        collection: collectionId,
+        order: maxOrder,
       };
 
-      if (editingLessonId) {
-        const res = await updateLesson(token, editingLessonId, payload);
-        setLessons((prev) => prev.map((l) => (l._id === editingLessonId ? res.data.data : l)));
-        message.success('Đã cập nhật bài học');
-      } else {
+      if (!editingLessonId) {
         const res = await createLesson(token, payload);
         setLessons((prev) => {
           const newLessons = [...prev, res.data.data];
           console.log("Updated lessons state:", newLessons);
+
+          // Cập nhật thứ tự lessons
+          const updates = newLessons.map((lesson, index) => ({
+            lessonId: lesson._id,
+            order: index,
+            collection: lesson.collection,
+          }));
+          reorderLessons(token, updates); // Gọi API để cập nhật thứ tự
+
           return newLessons;
         });
         message.success('Đã thêm bài học');
