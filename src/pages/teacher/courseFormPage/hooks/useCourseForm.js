@@ -193,15 +193,14 @@ export function useCourseForm() {
     }
   };
 
-  const handleReorderLessons = async (newOrder) => {
-    const isSameOrder = lessons.every((l, i) => l._id === newOrder[i]._id);
-    if (isSameOrder) return;
+  const handleReorderLessons = async (newFullList) => {
+    setLessons(newFullList); // 👈 dùng toàn bộ danh sách mới
 
-    setLessons(newOrder);
     try {
-      const updates = newOrder.map((lesson, index) => ({
+      const updates = newFullList.map((lesson) => ({
         lessonId: lesson._id,
-        order: index,
+        order: lesson.order,
+        collection: lesson.collection,
       }));
       await reorderLessons(token, updates);
       setHasUnsavedChanges(true);
@@ -210,6 +209,8 @@ export function useCourseForm() {
       message.error('Lỗi khi cập nhật thứ tự bài học');
     }
   };
+
+
 
   const handleAddCollection = () => {
     collectionForm.resetFields();

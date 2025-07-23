@@ -109,31 +109,39 @@ export default function CollectionManager({
               style={{ marginBottom: 8 }}
             >+ Thêm bài học</Button>
 
-            <ReactSortable
-              list={collection.lessons}
-              setList={(newList) => {
-                const reorderedLessons = [...lessons];
-                newList.forEach((l, idx) => {
-                  const index = reorderedLessons.findIndex(item => item._id === l._id);
-                  if (index !== -1) {
-                    reorderedLessons[index] = { ...reorderedLessons[index], order: idx };
-                  }
-                });
-                onReorderLessons(reorderedLessons);
-              }}
-              animation={150}
-            >
-              <List
-                bordered
-                dataSource={collection.lessons}
-                renderItem={(lesson) => (
+            <List bordered>
+              <ReactSortable
+                list={collection.lessons}
+                setList={(newList) => {
+                  const updatedSubset = newList.map((lesson, index) => ({
+                    ...lesson,
+                    collection: collection._id,
+                    order: index,
+                  }));
+
+                  // 🔁 Cập nhật toàn bộ lessons luôn
+                  const newFullList = [
+                    ...lessons.filter(l => l.collection !== collection._id && !newList.some(n => n._id === l._id)),
+                    ...updatedSubset,
+                  ];
+
+                  onReorderLessons(newFullList);
+                }}
+
+                group="lessons"
+                animation={200}
+                handle=".drag-handle"
+              >
+                {collection.lessons.map((lesson) => (
                   <List.Item
+                    key={lesson._id}
                     actions={[
                       <Button icon={<EditOutlined />} size="small" onClick={() => onEditLesson(lesson._id)} />,
                       <Button icon={<DeleteOutlined />} danger size="small" onClick={() => onDeleteLesson(lesson._id)} />,
                     ]}
+                    style={{ display: 'flex', alignItems: 'center', cursor: 'move' }}
                   >
-                    <div style={{ width: '100%' }}>
+                    <div className="drag-handle" style={{ width: '100%' }}>
                       <Space size="small" wrap>
                         <Text strong>{lesson.title}</Text>
                         {lesson.videoDuration != null && (
@@ -149,9 +157,9 @@ export default function CollectionManager({
                       </Space>
                     </div>
                   </List.Item>
-                )}
-              />
-            </ReactSortable>
+                ))}
+              </ReactSortable>
+            </List>
           </Panel>
         ))}
 
@@ -160,8 +168,19 @@ export default function CollectionManager({
             <ReactSortable
               list={ungroupedLessons}
               setList={(newList) => {
-                const reordered = newList.map((l, idx) => ({ ...l, order: idx, collection: null }));
-                onReorderLessons([...lessons.filter(l => l.collection), ...reordered]);
+                const updated = lessons.map((l) => {
+                  const found = newList.find((n) => n._id === l._id);
+                  if (found) {
+                    return {
+                      ...l,
+                      order: newList.findIndex(n => n._id === l._id),
+                      collection: null, // ✅ không có collection
+                    };
+                  }
+                  return l;
+                });
+
+                onReorderLessons(updated);
               }}
               animation={150}
             >
@@ -170,6 +189,7 @@ export default function CollectionManager({
                 dataSource={ungroupedLessons}
                 renderItem={(lesson) => (
                   <List.Item
+                    key={lesson._id}
                     actions={[
                       <Button icon={<EditOutlined />} size="small" onClick={() => onEditLesson(lesson._id)} />,
                       <Button icon={<DeleteOutlined />} danger size="small" onClick={() => onDeleteLesson(lesson._id)} />,
