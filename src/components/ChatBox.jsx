@@ -227,7 +227,7 @@ const ChatBox = ({ onClose }) => {
             <div style={{ fontWeight: 600, marginBottom: 4, color: '#0d6efd' }}>Khóa học gợi ý:</div>
             {lastCourses.map((c, i) => (
               <div key={c._id} style={{ marginBottom: 6 }}>
-                <a href={`http://localhost:3000/courses/${c._id}`} target="_blank" rel="noopener noreferrer" style={{ color: '#0d6efd', fontWeight: 500, textDecoration: 'underline', fontSize: 15 }}>
+                <a href={`https://f5-online-learning-client.vercel.app/courses/${c._id}`} target="_blank" rel="noopener noreferrer" style={{ color: '#0d6efd', fontWeight: 500, textDecoration: 'underline', fontSize: 15 }}>
                   {c.title}
                 </a>
                 <div style={{ color: '#555', fontSize: 13 }}>{c.description}</div>
